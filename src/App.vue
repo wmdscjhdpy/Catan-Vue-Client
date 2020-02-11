@@ -1,28 +1,20 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <hexagon v-for="count in 9" :key="count.label" :x="count" y="1" kind="desert"/>
+    <hexagon v-for="count in 7" :key="count.label" :x="count+1" y="2" kind="desert"/>
+    <hexagon v-for="count in 3" :key="count.label" :x="count*2+1" y="3" kind="desert"/>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import hexagon from './components/hexagon.vue'
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    hexagon
   }
 }
 </script>
 
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-</style>
+
