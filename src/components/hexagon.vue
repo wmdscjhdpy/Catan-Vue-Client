@@ -1,8 +1,8 @@
 <template>
 	<div :style="selfstyle">
-		<img :src="this.kindimg[this.kind]" :usemap="'#hexagon'+this.globalId+'map'">
-		<map :name="'hexagon'+this.globalId+'map'">
-			<area shape="circle" coords="100,100,80" href="javascript:void(0);" :onclick="'alert('+this.globalId+')'">
+		<img :src="this.kindimg[this.kind]" :usemap="'#hexagon'+String(this.x)+String(this.y)+'map'">
+		<map :name="'hexagon'+String(this.x)+String(this.y)+'map'">
+			<area shape="circle" coords="100,100,80" href="javascript:void(0);" :onclick="'alert(`'+'x:'+this.x+'  y:'+this.y+'`)'">
 		</map>
 	</div>
 </template>
@@ -16,10 +16,9 @@
 	import img_grass from '../assets/CATAN/grass.png';
 	export default{
 		props:['x','y','kind'],
-		//坐标定义方式，从左到右最左边的为x=1的格子，从上到下最上面的为y=1的格子
+		//坐标定义方式，以最中间的为原点，按照数学方法建立坐标系
 		data:function(){
 			return{
-				globalId:this.y*10+this.x*1,			//用于辨识的六边形id
 				kindimg:{							//地块图片集
 					stone:img_stone,
 					desert:img_desert,
@@ -41,14 +40,13 @@
 		methods:{
 			calcXYPosition() {
 				var posY,posX;
-				posX=200+95*this.x;
-				if(this.x%2)//不需要偏移的情况
+				posX=700+190*this.x;
+				if(this.y%2)//需要偏移的情况 x正负影响偏移正负
 				{
-					if(this.x==1 || this.x==9)posY=194+336;
-					else posY=194+336*(this.y-1);
-				}else{//需要偏移的情况
-					posY=194+168+336*(this.y-1);
+					if(this.x>0)posX-=95;
+					else posX+=95;
 				}
+				posY=700-168*this.y;
 				this.selfstyle.left=posX+'px';
 				this.selfstyle.top=posY+'px';
 			}

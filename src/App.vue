@@ -1,8 +1,10 @@
 <template>
   <div id="app">
-    <hexagon v-for="count in 9" :key="count.label" :x="count" y="1" kind="desert"/>
-    <hexagon v-for="count in 7" :key="count.label" :x="count+1" y="2" kind="desert"/>
-    <hexagon v-for="count in 3" :key="count.label" :x="count*2+1" y="3" kind="desert"/>
+    <hexagon v-for="num in 5" :key="num.label" :x="num-3" y="0" kind="desert"/>
+    <hexagon v-for="num in 4" :key="num.label" :x="num>2?num-2:num-3" y="1" kind="desert"/>
+    <hexagon v-for="num in 4" :key="num.label" :x="num>2?num-2:num-3" y="-1" kind="desert"/>
+    <hexagon v-for="num in 3" :key="num.label" :x="num-2" y="2" kind="desert"/>
+    <hexagon v-for="num in 3" :key="num.label" :x="num-2" y="-2" kind="desert"/>
   </div>
 </template>
 
