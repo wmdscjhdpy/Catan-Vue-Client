@@ -5,7 +5,7 @@
 			<area shape="circle" coords="20,20,20" href="javascript:void(0);" :onclick="'alert(`this is a node   '+'x:'+this.x+'  y:'+this.y+'`)'">
 		</map>
     </div>
-</template>>
+</template>
 
 <script>
     import nobodyimg from '../assets/nobody.png'
@@ -75,7 +75,6 @@
                     else posY=this.G.middleY+this.G.hexagonside*2+this.G.roadside-this.G.homeside-(this.G.hexagonside/2*3+this.G.roadside)*(Number(this.y)+1);
                 if(!(Math.abs(0+Number(this.x)+Number(this.y))%2))
                 {
-                    //alert(Math.abs(0+Number(this.x)+Number(this.y)));
                     posY+=50*Math.sign(this.y);
                 }
                 this.selfstyle.left=posX+'px';

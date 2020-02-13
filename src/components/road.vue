@@ -14,7 +14,7 @@ export default {
                 top:0+'px',
                 width: this.G.roadside+2+'px',
                 height: this.G.hexagonside-20+'px',
-                background: 'red',
+                background: 'green',
                 transform:'rotate('+0+'deg)'
             }
         }
