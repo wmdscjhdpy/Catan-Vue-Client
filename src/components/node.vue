@@ -8,7 +8,7 @@
 </template>
 
 <script>
-    import nobodyimg from '../assets/nobody.png'
+    //import nobodyimg from '../assets/nobody.png'
     import bluehome from '../assets/home/blue.png'
     import redhome from '../assets/home/red.png'
     import purplehome from '../assets/home/purple.png'
@@ -22,8 +22,11 @@
     import skycity from '../assets/city/sky.png'
     import yellowcity from '../assets/city/yellow.png'
     import greencity from '../assets/city/green.png'
+
+    
+	import gamecalc from '../components/gamecalc.js'
     export default{
-        props:['x1','y1','x2','y2','x3','y3'],
+        props:['P1','P2','P3'],
         data(){
             return{
                 nodeid:0,
@@ -31,7 +34,7 @@
                 building:"blank",
                 who:{
                     nobody:{
-                        blank:nobodyimg
+                        blank:bluehome
                     },
                     blue:{
                         home:bluehome,
@@ -67,12 +70,12 @@
         },
         beforeMount(){
             //保证作为Number处理
-            this.x1=Number(this.x1);
-            this.y1=Number(this.y1);
-            this.x2=Number(this.x2);
-            this.y2=Number(this.y2);
-            this.x3=Number(this.x3);
-            this.y3=Number(this.y3);
+            this.P1.x=Number(this.P1.x);
+            this.P1.y=Number(this.P1.y);
+            this.P2.x=Number(this.P2.x);
+            this.P2.y=Number(this.P2.y);
+            this.P3.x=Number(this.P3.x);
+            this.P3.y=Number(this.P3.y);
             
 			this.calcXYPosition();
             this.calcNodeId();
@@ -80,33 +83,19 @@
         methods:{
             calcXYPosition(){
                 var P1,P2,P3,posX,posY;
-                P1=this.calcBlockMiddle(this.x1,this.y1);
-                P2=this.calcBlockMiddle(this.x2,this.y2);
-                P3=this.calcBlockMiddle(this.x3,this.y3);
-                posX=Math.round((P1.x+P2.x+P3.x)/3-this.G.homeside/2);
-                posY=Math.round((P1.y+P2.y+P3.y)/3-this.G.homeside/2);
+                P1=gamecalc.calcHexagonMiddle(this.P1.x,this.P1.y);
+                P2=gamecalc.calcHexagonMiddle(this.P2.x,this.P2.y);
+                P3=gamecalc.calcHexagonMiddle(this.P3.x,this.P3.y);
+                posX=Math.round((P1.x+P2.x+P3.x)/3-gamecalc.G.homeside/2);
+                posY=Math.round((P1.y+P2.y+P3.y)/3-gamecalc.G.homeside/2);
                 this.selfstyle.left=posX+'px';
                 this.selfstyle.top=posY+'px';
             },
-            ///计算对应坐标的六边形块在页面中的中心坐标
-            calcBlockMiddle(blockx,blocky) {
-            var posY,posX;
-            posX=this.G.middleX+(this.G.hexagonhigh+this.G.roadside)*blockx;
-            if(blocky%2)//需要偏移的情况 x正负影响偏移正负
-            {
-                if(blockx>0)posX-=(this.G.hexagonhigh+this.G.roadside)/2;
-                else posX+=(this.G.hexagonhigh+this.G.roadside)/2;
-            }
-            posY=this.G.middleY-(this.G.hexagonside/2*3+this.G.roadside)*blocky;
 
-            posX+=(this.G.hexagonside);
-            posY+=(this.G.hexagonside);
-            return {x:posX,y:posY};
-            },
             calcNodeId(){//给每一个节点一个唯一编号
                 var X,Y;
-                X=(this.x1+this.x2+this.x3)/3;
-                Y=(this.y1+this.y2+this.y3)/3;
+                X=(this.P1.x+this.P2.x+this.P3.x)/3;
+                Y=(this.P1.y+this.P2.y+this.P3.y)/3;
                 this.nodeid='node-x'+String(X.toFixed(2))+'y'+String(Y.toFixed(2));
                 this.nodeid=String(this.nodeid).replace(/\./g,'d');
             }

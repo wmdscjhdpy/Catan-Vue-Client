@@ -1,11 +1,13 @@
 <template>
-    <div :class="'road'+String(this.x1)+String(this.y1)+String(this.x2)+String(this.y2)" :style="this.selfstyle" :onclick="'alert(`this is a'+this.roadid+'`)'">
+    <div :class="'road'+String(this.P1.x)+String(this.P1.y)+String(this.P2.x)+String(this.P2.y)" :style="this.selfstyle" :onclick="'alert(`this is a'+this.roadid+'`)'">
     </div>
 </template>
 
 <script>
+import gamecalc from './gamecalc';
+
 export default {
-    props:['x1','y1','x2','y2'],
+    props:['P1','P2'],
     data(){
         return{
             roadid:0,
@@ -13,8 +15,8 @@ export default {
                 position:'absolute',
                 left:0+'px',
                 top:0+'px',
-                width: this.G.roadside+2+'px',
-                height: this.G.hexagonside-20+'px',
+                width: gamecalc.G.roadside+2+'px',
+                height: gamecalc.G.hexagonside-20+'px',
                 background: 'green',
                 transform:'rotate('+0+'deg)'
             }
@@ -22,10 +24,10 @@ export default {
     },
     beforeMount(){
         //保证传入数据为Number
-        this.x1=Number(this.x1);
-        this.x2=Number(this.x2);
-        this.y1=Number(this.y1);
-        this.y2=Number(this.y2);
+        this.P1.x=Number(this.P1.x);
+        this.P2.x=Number(this.P2.x);
+        this.P1.y=Number(this.P1.y);
+        this.P2.y=Number(this.P2.y);
         //初始化位置以及角度
         this.calcRoadId();
         this.calcPositionAndDeg();
@@ -33,61 +35,46 @@ export default {
     methods:{
         calcPositionAndDeg(){
             var pos1,pos2,posX,posY;
-            pos1=this.calcBlockMiddle(this.x1,this.y1);
-            pos2=this.calcBlockMiddle(this.x2,this.y2);
-            posX=Math.round((pos1['x']+pos2['x'])/2);
-            posY=Math.round((pos1['y']+pos2['y'])/2);
+            pos1=gamecalc.calcHexagonMiddle(this.P1.x,this.P1.y);
+            pos2=gamecalc.calcHexagonMiddle(this.P2.x,this.P2.y);
+            posX=Math.round((pos1.x+pos2.x)/2);
+            posY=Math.round((pos1.y+pos2.y)/2);
             //坐标位置移至左上角
-            posX-=(this.G.roadside+2)/2;
-            posY-=(this.G.hexagonside-20)/2;
+            posX-=(gamecalc.G.roadside+2)/2;
+            posY-=(gamecalc.G.hexagonside-20)/2;
             this.selfstyle.left=posX+'px';
             this.selfstyle.top=posY+'px';
             this.selfstyle.transform='rotate('+this.calcRotateDeg()*-60+'deg)';
         },
         ///计算道路旋转角度
         calcRotateDeg(){
-            if(this.y1==this.y2)return 0;//不需要旋转
+            if(this.P1.y==this.P2.y)return 0;//不需要旋转
             var result;//1代表\这样-1代表/这样
-            var X1=Math.abs(this.x1);
-            var X2=Math.abs(this.x2);
+            var X1=Math.abs(this.P1.x);
+            var X2=Math.abs(this.P2.x);
             
             if(X1==X2)//假定x1在外面
             {
                 //以下假定y1>y2进行推理
-                if(Math.abs(this.y1)%2)X1-=0.5;//添加内偏移
-                if(Math.abs(this.y2)%2)X2-=0.5;
+                if(Math.abs(this.P1.y)%2)X1-=0.5;//添加内偏移
+                if(Math.abs(this.P2.y)%2)X2-=0.5;
                 if(X1-X2>0)result=1;
                 else result=-1;
-                if(Math.abs(this.y1)<Math.abs(this.y2))
+                if(Math.abs(this.P1.y)<Math.abs(this.P2.y))
                     result*=-1;//如果不符合假设则反相结果
             }else{//存在x之差
                 //假定X1>X2
-                if(Math.abs(this.y1)>Math.abs(this.y2))result=1;
+                if(Math.abs(this.P1.y)>Math.abs(this.P2.y))result=1;
                 else result=-1;
                 if(X2>X1)result*=-1;
             }
-            result*=(Math.sign((this.x1+this.x2)*Math.sign(this.y1+this.y2)));//依据对称性进行转换
+            result*=(Math.sign((this.P1.x+this.P2.x)*Math.sign(this.P1.y+this.P2.y)));//依据对称性进行转换
             return result;
-        },
-        ///计算对应坐标的六边形块在页面中的中心坐标
-        calcBlockMiddle(blockx,blocky) {
-            var posY,posX;
-            posX=this.G.middleX+(this.G.hexagonhigh+this.G.roadside)*blockx;
-            if(blocky%2)//需要偏移的情况 x正负影响偏移正负
-            {
-                if(blockx>0)posX-=(this.G.hexagonhigh+this.G.roadside)/2;
-                else posX+=(this.G.hexagonhigh+this.G.roadside)/2;
-            }
-            posY=this.G.middleY-(this.G.hexagonside/2*3+this.G.roadside)*blocky;
-
-            posX+=(this.G.hexagonside);
-            posY+=(this.G.hexagonside);
-            return {x:posX,y:posY};
         },
         calcRoadId(){//给每一个节点一个唯一编号
             var X,Y;
-            X=(this.x1+this.x2)/2;
-            Y=(this.y1+this.y2)/2;
+            X=(this.P1.x+this.P2.x)/2;
+            Y=(this.P1.y+this.P2.y)/2;
             this.roadid='road-x'+String(X.toFixed(2))+'y'+String(Y.toFixed(2));
             this.roadid=String(this.roadid).replace(/\./g,'d');
         }
