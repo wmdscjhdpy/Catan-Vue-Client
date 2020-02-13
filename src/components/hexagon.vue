@@ -36,6 +36,8 @@
 			}
 		},
 		beforeMount(){
+			this.x=Number(this.x);
+			this.y=Number(this.y);
 			this.calcXYPosition();
 		},
 		methods:{
@@ -50,7 +52,72 @@
 				posY=this.G.middleY-(this.G.hexagonside/2*3+this.G.roadside)*this.y;
 				this.selfstyle.left=posX+'px';
 				this.selfstyle.top=posY+'px';
+			},
+			getNearPosition(deg){//获取临近六边形坐标
+				var newX=this.x,newY=this.y;
+				while(deg<0)deg+=360;
+				switch(deg%360)
+				{
+					case 0:
+						newX=this.x+1;
+						if(newX==0 && (Math.abs(this.y%2)))newX+=1;
+					break;
+					case 180:
+						newX=this.x-1;
+						if(newX==0 && (Math.abs(this.y%2)))newX-=1;
+					break;
+					case 60:
+						newY+=1;
+						if((!(Math.abs(this.y%2)))&& (this.x>=0))newX+=1;
+						if((Math.abs(this.y%2))&& (this.x<0))newX+=1;
+					break;
+					case 120:
+						newY+=1;
+						if((!(Math.abs(this.y%2)))&& (this.x>=0))newX-=1;
+						if((Math.abs(this.y%2))&& (this.x<0))newX-=1;
+					break;
+					case 240:
+						newY-=1;
+						if((!(Math.abs(this.y%2)))&& (this.x>=0))newX-=1;
+						if((Math.abs(this.y%2))&& (this.x<0))newX-=1;
+					break;
+					case 300:
+						newY-=1;
+						if((!(Math.abs(this.y%2)))&& (this.x>=0))newX+=1;
+						if((Math.abs(this.y%2))&& (this.x<0))newX+=1;
+					break;
+				}
+				return {
+					x:newX,
+					y:newY
+				}
+			},
+			getAllNodeNearby()//获取和这个六边形相邻的所有节点
+			{
+				var retval=new Array();
+				var N0={x:this.x,y:this.y};
+				for(var i=0;i<360;i+=60)
+				{
+					var N1=this.getNearPosition(i);
+					var N2=this.getNearPosition(i+60);
+					retval.push({N0,N1,N2});
+				}
+				return retval;
+			},
+			/*
+			testfunction(x1,y1){
+				var label,next;
+				for(var i=1;i<100;i++)
+				{
+					v_forToAddDOM(x1,y1,label);//在这里渲染一个DOM ref为label的值
+					next=this.$refs.label.calcNext();//使用刚刚渲染的label的方法进行迭代
+					//得到下一个DOM的参数
+					x1=next.x1;
+					y1=next.y1;
+					label=next.label;
+				}
 			}
+			*/
 		}
 	}
 </script>

@@ -8,7 +8,8 @@ Vue.prototype.G={       //常数全局变量集合Global
   hexagonside:100,      //六边形边长
   hexagonhigh:172,
   roadside:18,          //路的宽度（两个六边形的间隔）
-  homeside:40
+  homeside:40,
+  nodelist:new Array()
 }
 new Vue({
   render: h => h(App),

@@ -1,5 +1,5 @@
 <template>
-    <div :class="'road'+String(this.x1)+String(this.y1)+String(this.x2)+String(this.y2)" :style="this.selfstyle" :onclick="'alert(`this is a road'+'  x1:'+this.x1+'  y1:'+this.y1+'  x2:'+this.x2+'  y2:'+this.y2+'`)'">
+    <div :class="'road'+String(this.x1)+String(this.y1)+String(this.x2)+String(this.y2)" :style="this.selfstyle" :onclick="'alert(`this is a'+this.roadid+'`)'">
     </div>
 </template>
 
@@ -8,6 +8,7 @@ export default {
     props:['x1','y1','x2','y2'],
     data(){
         return{
+            roadid:0,
             selfstyle:{
                 position:'absolute',
                 left:0+'px',
@@ -26,6 +27,7 @@ export default {
         this.y1=Number(this.y1);
         this.y2=Number(this.y2);
         //初始化位置以及角度
+        this.calcRoadId();
         this.calcPositionAndDeg();
 	},
     methods:{
@@ -81,6 +83,13 @@ export default {
             posX+=(this.G.hexagonside);
             posY+=(this.G.hexagonside);
             return {x:posX,y:posY};
+        },
+        calcRoadId(){//给每一个节点一个唯一编号
+            var X,Y;
+            X=(this.x1+this.x2)/2;
+            Y=(this.y1+this.y2)/2;
+            this.roadid='road-x'+String(X.toFixed(2))+'y'+String(Y.toFixed(2));
+            this.roadid=String(this.roadid).replace(/\./g,'d');
         }
     }
 

@@ -1,8 +1,8 @@
 <template>
     <div :style="selfstyle">
-        <img :src="this.who[this.belongto][this.building]" :usemap="'#node'+String(this.x)+String(this.y)+'map'" width="40" height="40">
-        <map :name="'node'+String(this.x)+String(this.y)+'map'">
-			<area shape="circle" coords="20,20,20" href="javascript:void(0);" :onclick="'alert(`this is a node   '+'x:'+this.x+'  y:'+this.y+'`)'">
+        <img :id="'node'+this.nodeid" :src="this.who[this.belongto][this.building]" :usemap="'#node-'+this.nodeid+'map'" width="40" height="40">
+        <map :name="'node-'+this.nodeid+'map'">
+			<area shape="circle" coords="20,20,20" href="javascript:void(0);" :onclick="'alert(`this is a node   '+this.nodeid+'`)'">
 		</map>
     </div>
 </template>
@@ -23,9 +23,10 @@
     import yellowcity from '../assets/city/yellow.png'
     import greencity from '../assets/city/green.png'
     export default{
-        props:['x','y'],
+        props:['x1','y1','x2','y2','x3','y3'],
         data(){
             return{
+                nodeid:0,
                 belongto:"nobody",
                 building:"blank",
                 who:{
@@ -65,20 +66,49 @@
             }
         },
         beforeMount(){
+            //保证作为Number处理
+            this.x1=Number(this.x1);
+            this.y1=Number(this.y1);
+            this.x2=Number(this.x2);
+            this.y2=Number(this.y2);
+            this.x3=Number(this.x3);
+            this.y3=Number(this.y3);
+            
 			this.calcXYPosition();
+            this.calcNodeId();
 		},
         methods:{
             calcXYPosition(){
-                var posY,posX;
-                posX=this.G.middleX+this.G.hexagonside-this.G.homeside/2+(this.G.hexagonhigh+this.G.roadside)/2*this.x;
-                if(this.y>0)posY=this.G.middleY-this.G.roadside/2-this.G.homeside/2-(this.G.hexagonside/2*3+this.G.roadside)*(this.y-1);
-                    else posY=this.G.middleY+this.G.hexagonside*2+this.G.roadside-this.G.homeside-(this.G.hexagonside/2*3+this.G.roadside)*(Number(this.y)+1);
-                if(!(Math.abs(0+Number(this.x)+Number(this.y))%2))
-                {
-                    posY+=50*Math.sign(this.y);
-                }
+                var P1,P2,P3,posX,posY;
+                P1=this.calcBlockMiddle(this.x1,this.y1);
+                P2=this.calcBlockMiddle(this.x2,this.y2);
+                P3=this.calcBlockMiddle(this.x3,this.y3);
+                posX=Math.round((P1.x+P2.x+P3.x)/3-this.G.homeside/2);
+                posY=Math.round((P1.y+P2.y+P3.y)/3-this.G.homeside/2);
                 this.selfstyle.left=posX+'px';
                 this.selfstyle.top=posY+'px';
+            },
+            ///计算对应坐标的六边形块在页面中的中心坐标
+            calcBlockMiddle(blockx,blocky) {
+            var posY,posX;
+            posX=this.G.middleX+(this.G.hexagonhigh+this.G.roadside)*blockx;
+            if(blocky%2)//需要偏移的情况 x正负影响偏移正负
+            {
+                if(blockx>0)posX-=(this.G.hexagonhigh+this.G.roadside)/2;
+                else posX+=(this.G.hexagonhigh+this.G.roadside)/2;
+            }
+            posY=this.G.middleY-(this.G.hexagonside/2*3+this.G.roadside)*blocky;
+
+            posX+=(this.G.hexagonside);
+            posY+=(this.G.hexagonside);
+            return {x:posX,y:posY};
+            },
+            calcNodeId(){//给每一个节点一个唯一编号
+                var X,Y;
+                X=(this.x1+this.x2+this.x3)/3;
+                Y=(this.y1+this.y2+this.y3)/3;
+                this.nodeid='node-x'+String(X.toFixed(2))+'y'+String(Y.toFixed(2));
+                this.nodeid=String(this.nodeid).replace(/\./g,'d');
             }
         }
     }
