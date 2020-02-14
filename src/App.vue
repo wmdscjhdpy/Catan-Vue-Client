@@ -1,8 +1,9 @@
 <template>
   <div id="app">
-    <hexagon v-for="Pos in this.gamemap" :key="Pos.label" :P="Pos"/>
-    <node :P1="{x:0,y:0}" :P2="{x:1,y:1}" :P3="{x:1,y:0}"/>
-    <road :P1="{x:0,y:0}" :P2="{x:1,y:0}"/>
+    <hexagon v-for="Pos in this.gamemap.hexagon" :key="Pos.label" :P="Pos"/>
+    <node v-for="Pos in this.gamemap.node" :key="Pos.label" :P1="Pos.N0" :P2="Pos.N1" :P3="Pos.N2"/>
+    <road v-for="Pos in this.gamemap.road" :key="Pos.label" :P1="Pos.N0" :P2="Pos.N1"/>
+    <road/>
   </div>
 </template>
 
@@ -22,12 +23,11 @@ export default {
   },
   data:function(){
     return{
-      gamemap:{x:0,y:0}
+      gamemap:0
     }
   },
   beforeMount(){
       this.gamemap=gamecalc.initMap();
-      console(this.gamemap);
   }
 }
 </script>

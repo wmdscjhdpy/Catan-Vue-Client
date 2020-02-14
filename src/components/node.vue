@@ -8,7 +8,7 @@
 </template>
 
 <script>
-    //import nobodyimg from '../assets/nobody.png'
+    import nobodyimg from '../assets/nobody.png'
     import bluehome from '../assets/home/blue.png'
     import redhome from '../assets/home/red.png'
     import purplehome from '../assets/home/purple.png'
@@ -34,7 +34,7 @@
                 building:"blank",
                 who:{
                     nobody:{
-                        blank:bluehome
+                        blank:nobodyimg
                     },
                     blue:{
                         home:bluehome,
@@ -78,7 +78,7 @@
             this.P3.y=Number(this.P3.y);
             
 			this.calcXYPosition();
-            this.calcNodeId();
+            this.nodeid=gamecalc.calcNodeId(this.P1,this.P2,this.P3);
 		},
         methods:{
             calcXYPosition(){
@@ -92,13 +92,7 @@
                 this.selfstyle.top=posY+'px';
             },
 
-            calcNodeId(){//给每一个节点一个唯一编号
-                var X,Y;
-                X=(this.P1.x+this.P2.x+this.P3.x)/3;
-                Y=(this.P1.y+this.P2.y+this.P3.y)/3;
-                this.nodeid='node-x'+String(X.toFixed(2))+'y'+String(Y.toFixed(2));
-                this.nodeid=String(this.nodeid).replace(/\./g,'d');
-            }
+
         }
     }
 </script>

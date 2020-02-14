@@ -16,9 +16,10 @@ export default {
                 left:0+'px',
                 top:0+'px',
                 width: gamecalc.G.roadside+2+'px',
-                height: gamecalc.G.hexagonside-20+'px',
-                background: 'green',
-                transform:'rotate('+0+'deg)'
+                height: gamecalc.G.hexagonside-30+'px',
+                background: 'white',
+                transform:'rotate('+0+'deg)',
+                cursor:'pointer'
             }
         }
     },
@@ -29,7 +30,7 @@ export default {
         this.P1.y=Number(this.P1.y);
         this.P2.y=Number(this.P2.y);
         //初始化位置以及角度
-        this.calcRoadId();
+        this.roadid=gamecalc.calcRoadId(this.P1,this.P2);
         this.calcPositionAndDeg();
 	},
     methods:{
@@ -41,7 +42,7 @@ export default {
             posY=Math.round((pos1.y+pos2.y)/2);
             //坐标位置移至左上角
             posX-=(gamecalc.G.roadside+2)/2;
-            posY-=(gamecalc.G.hexagonside-20)/2;
+            posY-=(gamecalc.G.hexagonside-30)/2;
             this.selfstyle.left=posX+'px';
             this.selfstyle.top=posY+'px';
             this.selfstyle.transform='rotate('+this.calcRotateDeg()*-60+'deg)';
@@ -71,13 +72,7 @@ export default {
             result*=(Math.sign((this.P1.x+this.P2.x)*Math.sign(this.P1.y+this.P2.y)));//依据对称性进行转换
             return result;
         },
-        calcRoadId(){//给每一个节点一个唯一编号
-            var X,Y;
-            X=(this.P1.x+this.P2.x)/2;
-            Y=(this.P1.y+this.P2.y)/2;
-            this.roadid='road-x'+String(X.toFixed(2))+'y'+String(Y.toFixed(2));
-            this.roadid=String(this.roadid).replace(/\./g,'d');
-        }
+
     }
 
 }
