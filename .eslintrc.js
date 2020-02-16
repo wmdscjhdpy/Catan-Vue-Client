@@ -18,8 +18,18 @@ module.exports = {
     "plugins": [
         "vue"
     ],
-    "rules": {
-        'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
-        'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off'
-    }
+    'rules': {    
+            // allow paren-less arrow functions    
+            'arrow-parens': 0,    
+            // allow async-await    
+            'generator-star-spacing': 0,    
+            // allow debugger during development    
+            'no-debugger': process.env.NODE_ENV === 'production' ? 2 : 0,    
+            'no-tabs': 0,   
+            'no-mixed-spaces-and-tabs': 0,    
+            'indent': ["off", "tab"],    
+            'no-unused-vars': 0,    
+            'no-trailing-spaces': 0,    
+            "eqeqeq": 0  
+        }
 };

@@ -78,6 +78,13 @@ function getAllRoadNeayBy(P)//获取该六边形临近的所有节点
     return {val:retval,chk:retchk};
 }
 
+function calcHexagonId(P)
+{
+    var hexagonid='hexagon-x'+String(P.x.toFixed(2))+'y'+String(P.y.toFixed(2));
+    hexagonid=String(hexagonid).replace(/\./g,'d');
+    return hexagonid;
+}
+
 function calcNodeId(P1,P2,P3){//给每一个节点一个唯一编号
     var nodeid;
     var X,Y;
@@ -169,11 +176,17 @@ function initMap()//初始化游戏地图
     return {road:roadlist,hexagon:hexretval,node:nodelist};
 }
 
+function recv_handle(data){
+
+}
+
 export default{
     getNearPosition,
     calcHexagonMiddle,
     G,
     initMap,
     calcNodeId,
-    calcRoadId
+    calcRoadId,
+    calcHexagonId,
+    recv_handle
 }

@@ -1,7 +1,7 @@
 <template>
 	<div :style="selfstyle">
-		<img :src="this.kindimg[this.kind]" :usemap="'#hexagon'+String(this.P.x)+String(this.P.y)+'map'">
-		<map :name="'hexagon'+String(this.P.x)+String(this.P.y)+'map'">
+		<img :src="this.kindimg[this.kind]" :usemap="'#'+this.hexagonid+'map'">
+		<map :name="this.hexagonid+'map'">
 			<area shape="circle" coords="100,100,80" href="javascript:void(0);" :onclick="'alert(`this is a area   '+'x:'+this.P.x+'  y:'+this.P.y+'`)'">
 		</map>
 	</div>
@@ -21,6 +21,8 @@
 		data:function(){
 			return{
 				kind:"desert",
+				rollnum:0,							//概率数字
+				hexagonid:0,
 				kindimg:{							//地块图片集
 					stone:img_stone,
 					desert:img_desert,
@@ -39,6 +41,8 @@
 		beforeMount(){
 			this.P.x=Number(this.P.x);
 			this.P.y=Number(this.P.y);
+			this.ref=String(this.P);
+			this.hexagonid=gamecalc.calcHexagonId(this.P);
 			this.calcHexagonPosition();
 		},
 		methods:{
