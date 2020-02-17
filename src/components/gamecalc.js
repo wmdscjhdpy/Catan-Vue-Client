@@ -176,9 +176,7 @@ function initMap()//初始化游戏地图
     return {road:roadlist,hexagon:hexretval,node:nodelist};
 }
 
-function recv_handle(data){
 
-}
 
 export default{
     getNearPosition,
@@ -187,6 +185,5 @@ export default{
     initMap,
     calcNodeId,
     calcRoadId,
-    calcHexagonId,
-    recv_handle
+    calcHexagonId
 }
