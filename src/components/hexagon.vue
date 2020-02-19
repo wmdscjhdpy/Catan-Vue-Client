@@ -1,6 +1,8 @@
 <template>
 	<div :style="selfstyle">
 		<img :src="this.kindimg[this.kind]" :usemap="'#'+this.hexagonid+'map'">
+		<div v-if="rollnum!=7" style="position:absolute;left:70px;top:70px;width:60px;height:60px;background:#ffffcc;border-radius:30px"/>
+		<span v-if="rollnum!=7" style="position:absolute;left:86px;top:67px;"><font size ="20">{{rollnum}}</font></span>
 		<map :name="this.hexagonid+'map'">
 			<area shape="circle" coords="100,100,80" href="javascript:void(0);" :onclick="'alert(`this is a area   '+'x:'+this.P.x+'  y:'+this.P.y+'`)'">
 		</map>
@@ -16,12 +18,10 @@
 	import img_grass from '../assets/block/grass.png';
 	import gamecalc from '../components/gamecalc.js'
 	export default{
-		props:['P'],
+		props:['P','rollnum','kind'],
 		//坐标定义方式，以最中间的为原点，按照数学方法建立坐标系
 		data:function(){
 			return{
-				kind:"desert",
-				rollnum:0,							//概率数字
 				hexagonid:0,
 				kindimg:{							//地块图片集
 					stone:img_stone,

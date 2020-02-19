@@ -8,7 +8,7 @@
     <br>
     <scoreboard ref="sb3" index="3"/>
     <br>
-    <textarea rows="10" cols="50" readonly style="resize:none;font-size:16px;overflow:auto;" v-model="this.showmsg"/>
+    <textarea class="messagewindow" rows="10" cols="50" readonly style="resize:none;font-size:16px;overflow:auto;" v-model="this.showmsg"/>
     <br>
     <span>你的游戏名字:</span>
     <input type="text" v-model="mynickname" name="nickname" style="width:100px;resize:none;font-size:16px;">
@@ -19,14 +19,15 @@
     <br>
     <button v-if="!myreadystate && !priviliege && inroom" @click="changeReadyState(1)" style="resize:none;font-size:16px;">准备！！</button>
     <button v-if="myreadystate && !priviliege && inroom" @click="changeReadyState(0)" style="resize:none;font-size:16px;">取消准备</button>
+    <button v-if="priviliege && inroom" @click="startGame()" style="resize:none;font-size:16px;">开始游戏</button>
     <br>
-    <button v-if="!online" @click="connectServer()" style="resize:none;font-size:16px;">重新连接服务器</button>
 
     </div>
 </template>
 
 <script>
 import scoreboard from './scoreboard.vue'; //导入计分板零件
+import gamecalc from './gamecalc';
 export default {
     components:{
         scoreboard
@@ -53,6 +54,8 @@ export default {
     mounted(){
         this.connectServer();
     },
+    updated(){
+    },
     methods:{
         connectServer(){
             this.webSocket = new WebSocket("ws://192.168.2.5:2333");
@@ -71,13 +74,12 @@ export default {
                 return true;
             };
             this.webSocket.onclose =(event)=>{
-                this.showmsg+="【系统提示】您主动与服务器断开连接\n";
+                this.showmsg+="【系统提示】您主动与服务器断开连接 请刷新重试\n";
                 this.online=0;
             }
         },
         doEnter(){
             var send={};
-            var json;
             send['head']='enter';
             send['room']=this.roomnum;
             send['nickname']=this.mynickname;
@@ -85,9 +87,14 @@ export default {
         },
         doLeave(){
             var send={};
-            var json;
             send['head']='leave';
             this.webSocket.send(JSON.stringify(send));
+        },
+        startGame(){
+            var send={};
+            send['head']='gameon';
+            this.webSocket.send(JSON.stringify(send));
+            //交由服务器验证
         },
         changeReadyState(flag)
         {
@@ -130,14 +137,16 @@ export default {
                     this.$refs['sb'+i].readystate=0;
                 }
                 this.inroom=0;
+                this.priviliege=0;
                 this.showmsg+="【系统提示】你回到了大厅\n";
             break;
             case 'error':
-            break;
-            default:
-            console.log('接收超出case判断范围请确认');
+                alert(data.showmsg);
+                data.showmsg=undefined;
             break;
         }
+        //下面放的是游戏自身的数据处理逻辑
+        this.$emit('gameDataHandle',data);
         if(data['showmsg']!=undefined)
             this.showmsg+=data['showmsg'];
         }

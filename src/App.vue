@@ -1,9 +1,11 @@
 <template>
   <div id="app">
-    <hexagon v-for="Pos in this.gamemap.hexagon" :key="Pos.label" :P="Pos"/>
-    <node v-for="Pos in this.gamemap.node" :key="Pos.label" :P1="Pos.N0" :P2="Pos.N1" :P3="Pos.N2"/>
-    <road v-for="Pos in this.gamemap.road" :key="Pos.label" :P1="Pos.N0" :P2="Pos.N1"/>
-    <room x="1300" y="10"/>
+    <div v-if="gamemap!=null">
+      <hexagon v-for="hexa in gamemap.hexagon" :key="hexa.label" :P="hexa.Pos" :rollnum="hexa.number" :kind="hexa.kind"/>
+      <node v-for="Pos in gamemap.node" :key="Pos.label" :P1="Pos[0]" :P2="Pos[1]" :P3="Pos[2]"/>
+      <road v-for="Pos in gamemap.road" :key="Pos.label" :P1="Pos[0]" :P2="Pos[1]"/>
+    </div>
+    <room @gameDataHandle="gameDataHandle" x="1300" y="10"/>
   </div>
 </template>
 
@@ -20,22 +22,28 @@ export default {
     hexagon,
     node,
     road,
-    room
+    room,
   },
   data:function(){
     return{
-      gamemap:0,
-      webSocket:0,
+      gamemap:null
     }
   },
   beforeMount(){
-    
-    this.gamemap=gamecalc.initMap();
+
   },
   mounted(){
+
   },
   methods: {
-    
+    gameDataHandle(data){
+      switch(data.head)
+      {
+          case 'startgame':
+            this.gamemap=data;
+          break;
+      }
+    }
   },
 }
 </script>

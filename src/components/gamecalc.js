@@ -1,3 +1,4 @@
+import Vue from 'vue'
 
 var G={       //常数全局变量集合Global
     middleX:500,          //地图原点X坐标（左上角定位）
@@ -8,7 +9,6 @@ var G={       //常数全局变量集合Global
     homeside:40,
     nodelist:new Array()
 }
-
 function getNearPosition(P,deg){//获取临近六边形坐标
     var newX=P.x,newY=P.y;
     while(deg<0)deg+=360;
@@ -117,73 +117,11 @@ function calcHexagonMiddle(blockx,blocky) {            ///计算对应坐标的�
     posY+=(G.hexagonside);
     return {x:posX,y:posY};
 }
-
-function initMap()//初始化游戏地图
-{
-    var hexretval=new Array();//六边形列表
-    var it={x:0,y:0};//迭代器初值 迭代的是hexagon
-    hexretval.push(it);
-    //大循环
-    for(var i=1;i<=2;i++)
-    {
-        it=getNearPosition(it,300);
-
-        hexretval.push(it);
-        for(var deg=0;deg<360;deg+=60)
-        {
-            var k=0;
-            if(deg==0)k+=1;//每一次第一次的时候由于突出了一格，所以0°的操作少一个
-            while(k<i)
-            {
-                it=getNearPosition(it,deg);
-                hexretval.push(it);
-                k++;
-            }
-        }
-    }
-    var nodelist=new Array();//节点列表
-    var nodechklist=new Array();//节点重复性检查列表
-    var tmpnodelist;
-    //开始生成节点
-    for(i=0;i<hexretval.length;i++)
-    {
-        tmpnodelist=getAllNodeNearby(hexretval[i]);//获取节点
-        for(var l=0;l<6;l++)
-        {
-            if(nodechklist.indexOf(tmpnodelist.chk[l])==-1)//不存在这个node
-            {
-                nodechklist.push(tmpnodelist.chk[l]);//添加校验
-                nodelist.push(tmpnodelist.val[l]);//添加值
-            }
-        }
-    }
-    var roadlist=new Array();//道路列表
-    var tmproadlist;
-    var roadchklist=new Array();
-    //开始生成道路
-    for(i=0;i<hexretval.length;i++)
-    {
-        tmproadlist=getAllRoadNeayBy(hexretval[i]);//获取节点
-        for(l=0;l<6;l++)
-        {
-            if(roadchklist.indexOf(tmproadlist.chk[l])==-1)//不存在这个road
-            {
-                roadchklist.push(tmproadlist.chk[l]);//添加校验
-                roadlist.push(tmproadlist.val[l]);//添加值
-            }
-        }
-    }
-    return {road:roadlist,hexagon:hexretval,node:nodelist};
-}
-
-
-
 export default{
     getNearPosition,
     calcHexagonMiddle,
     G,
-    initMap,
     calcNodeId,
     calcRoadId,
-    calcHexagonId
+    calcHexagonId,
 }
