@@ -1,9 +1,10 @@
 <template>
     <div :style="selfstyle">
-    <span>{{nickname}}</span>
+    <span v-if="nickname">玩家:{{nickname}}</span>
+    <span v-if="!nickname">这是一个空位</span>
     <br>
-    <span v-if="readystate">已准备！</span>
-    <span v-if="!readystate">未准备</span>
+    <span v-if="readystate && nickname">已准备！</span>
+    <span v-if="!readystate && nickname">未准备</span>
     </div>
 </template>
 
@@ -14,7 +15,7 @@ export default {
     props:['index'],
     data() {
         return {
-            nickname:'空位',
+            nickname:undefined,
             readystate:0,
             selfstyle:{
                 width:'420px',

@@ -8,7 +8,7 @@
     <br>
     <scoreboard ref="sb3" index="3"/>
     <br>
-    <textarea rows="10" cols="50" readonly style="resize:none;font-size:16px;" v-model="this.showmsg"/>
+    <textarea rows="10" cols="50" readonly style="resize:none;font-size:16px;overflow:auto;" v-model="this.showmsg"/>
     <br>
     <span>你的游戏名字:</span>
     <input type="text" v-model="mynickname" name="nickname" style="width:100px;resize:none;font-size:16px;">
@@ -16,6 +16,9 @@
     <input type="text" v-model="roomnum" name="roomnum" style="width:50px;resize:none;font-size:16px;">
     <button v-if="!inroom" @click="doEnter()" style="resize:none;font-size:16px;">进入房间</button>
     <button v-if="inroom" @click="doLeave()" style="resize:none;font-size:16px;">离开房间</button>
+    <br>
+    <button v-if="!myreadystate && !priviliege && inroom" @click="changeReadyState(1)" style="resize:none;font-size:16px;">准备！！</button>
+    <button v-if="myreadystate && !priviliege && inroom" @click="changeReadyState(0)" style="resize:none;font-size:16px;">取消准备</button>
     <br>
     <button v-if="!online" @click="connectServer()" style="resize:none;font-size:16px;">重新连接服务器</button>
 
@@ -33,13 +36,14 @@ export default {
         return{
             online:0,//标记当前客户端在线状态
             inroom:0,//标记当前客户端在房间内还是房间外
-            webSocket:undefined,
-            showmsg:"卡坦岛内测版0.1\n",//用于显示游戏界面文字提示
+            webSocket:null,
+            showmsg:"欢迎来到卡坦岛内测版0.1\n",//用于显示游戏界面文字提示
             roomnum:'001',
             myseat:-1,//座位号
             mynickname:'wmd',
+            myreadystate:0,
             priviliege:0,            //是否是房主
-            selfstyle:{							//用于改变样式
+            selfstyle:{				 //用于改变样式
                 position:'absolute',
                 left:Number(this.x)+'px',
                 top:Number(this.y)+'px',
@@ -53,12 +57,12 @@ export default {
         connectServer(){
             this.webSocket = new WebSocket("ws://192.168.2.5:2333");
             this.webSocket.onopen = (event)=>{
-                this.showmsg+="已成功和服务器建立连接\n";
+                this.showmsg+="【系统提示】已成功和服务器建立连接\n";
                 this.online=1;
                 return true;
             };
             this.webSocket.onerror =(event)=>{
-                this.showmsg+="无法获得与服务器的连接，请联系管理员？\n";
+                this.showmsg+="【系统提示】无法获得与服务器的连接，快！把bug报给我！\n";
                 this.online=0;
             };
             //监听消息
@@ -67,7 +71,7 @@ export default {
                 return true;
             };
             this.webSocket.onclose =(event)=>{
-                this.showmsg+="您主动与服务器断开连接\n";
+                this.showmsg+="【系统提示】您主动与服务器断开连接\n";
                 this.online=0;
             }
         },
@@ -85,6 +89,15 @@ export default {
             send['head']='leave';
             this.webSocket.send(JSON.stringify(send));
         },
+        changeReadyState(flag)
+        {
+            var send={};
+            var json;
+            send['head']='ready';
+            send['flag']=flag;
+            this.myreadystate=flag;
+            this.webSocket.send(JSON.stringify(send));
+        },
         recv_handle(rawdata)
         {
         var data;
@@ -95,15 +108,29 @@ export default {
                 this.priviliege=1;
             break;
             case 'enter':
-            if(data.nickname==this.mynickname)
-            {//这个人是自己
-                this.myseat=Number(data.index);
-                this.inroom=1;
-            }
-            this.$refs['sb'+data.index].nickname=data.nickname;
+                if(data.nickname==this.mynickname)
+                {//这个人是自己
+                    this.myseat=Number(data.index);
+                    this.inroom=1;
+                }
+                this.$refs['sb'+data.index].nickname=data.nickname;
             break;
             case 'ready':
-            this.$refs['sb'+data.index].readystate=data.flag;
+                this.$refs['sb'+data.index].readystate=data.flag;
+            break;
+            case 'leave':
+                //清空房间信息
+                this.$refs['sb'+data.index].nickname=null;
+                this.$refs['sb'+data.index].readystate=0;
+            break;
+            case 'leavesuccess':
+                for(var i=0;i<4;i++)
+                {
+                    this.$refs['sb'+i].nickname=null;
+                    this.$refs['sb'+i].readystate=0;
+                }
+                this.inroom=0;
+                this.showmsg+="【系统提示】你回到了大厅\n";
             break;
             case 'error':
             break;
