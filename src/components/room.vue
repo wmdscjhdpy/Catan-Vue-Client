@@ -1,0 +1,119 @@
+<template>
+    <div :style="selfstyle">
+    <scoreboard ref="sb0" index="0"/>
+    <br>
+    <scoreboard ref="sb1" index="1"/>
+    <br>
+    <scoreboard ref="sb2" index="2"/>
+    <br>
+    <scoreboard ref="sb3" index="3"/>
+    <br>
+    <textarea rows="10" cols="50" readonly style="resize:none;font-size:16px;" v-model="this.showmsg"/>
+    <br>
+    <span>你的游戏名字:</span>
+    <input type="text" v-model="mynickname" name="nickname" style="width:100px;resize:none;font-size:16px;">
+    <span>房间号:</span>
+    <input type="text" v-model="roomnum" name="roomnum" style="width:50px;resize:none;font-size:16px;">
+    <button v-if="!inroom" @click="doEnter()" style="resize:none;font-size:16px;">进入房间</button>
+    <button v-if="inroom" @click="doLeave()" style="resize:none;font-size:16px;">离开房间</button>
+    <br>
+    <button v-if="!online" @click="connectServer()" style="resize:none;font-size:16px;">重新连接服务器</button>
+
+    </div>
+</template>
+
+<script>
+import scoreboard from './scoreboard.vue'; //导入计分板零件
+export default {
+    components:{
+        scoreboard
+    },
+    props:['x','y'],
+    data:function(){
+        return{
+            online:0,//标记当前客户端在线状态
+            inroom:0,//标记当前客户端在房间内还是房间外
+            webSocket:undefined,
+            showmsg:"卡坦岛内测版0.1\n",//用于显示游戏界面文字提示
+            roomnum:'001',
+            myseat:-1,//座位号
+            mynickname:'wmd',
+            priviliege:0,            //是否是房主
+            selfstyle:{							//用于改变样式
+                position:'absolute',
+                left:Number(this.x)+'px',
+                top:Number(this.y)+'px',
+            }
+        }
+    },
+    mounted(){
+        this.connectServer();
+    },
+    methods:{
+        connectServer(){
+            this.webSocket = new WebSocket("ws://192.168.2.5:2333");
+            this.webSocket.onopen = (event)=>{
+                this.showmsg+="已成功和服务器建立连接\n";
+                this.online=1;
+                return true;
+            };
+            this.webSocket.onerror =(event)=>{
+                this.showmsg+="无法获得与服务器的连接，请联系管理员？\n";
+                this.online=0;
+            };
+            //监听消息
+            this.webSocket.onmessage =(event)=>{
+                this.recv_handle(event.data);
+                return true;
+            };
+            this.webSocket.onclose =(event)=>{
+                this.showmsg+="您主动与服务器断开连接\n";
+                this.online=0;
+            }
+        },
+        doEnter(){
+            var send={};
+            var json;
+            send['head']='enter';
+            send['room']=this.roomnum;
+            send['nickname']=this.mynickname;
+            this.webSocket.send(JSON.stringify(send));
+        },
+        doLeave(){
+            var send={};
+            var json;
+            send['head']='leave';
+            this.webSocket.send(JSON.stringify(send));
+        },
+        recv_handle(rawdata)
+        {
+        var data;
+        data=JSON.parse(rawdata);
+        console.log(data);
+        switch (data.head) {
+            case 'priviliege':
+                this.priviliege=1;
+            break;
+            case 'enter':
+            if(data.nickname==this.mynickname)
+            {//这个人是自己
+                this.myseat=Number(data.index);
+                this.inroom=1;
+            }
+            this.$refs['sb'+data.index].nickname=data.nickname;
+            break;
+            case 'ready':
+            this.$refs['sb'+data.index].readystate=data.flag;
+            break;
+            case 'error':
+            break;
+            default:
+            console.log('接收超出case判断范围请确认');
+            break;
+        }
+        if(data['showmsg']!=undefined)
+            this.showmsg+=data['showmsg'];
+        }
+    }
+}
+</script>

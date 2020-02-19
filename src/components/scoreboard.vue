@@ -1,22 +1,22 @@
 <template>
     <div :style="selfstyle">
     <span>{{nickname}}</span>
-    <span>准备状态:{{readystate}}</span>
+    <br>
+    <span v-if="readystate">已准备！</span>
+    <span v-if="!readystate">未准备</span>
     </div>
 </template>
 
 <script>
 //计分板
+//如果游戏需要什么与玩家相关的信息可以在这里显示
 export default {
-    props:['x','y','index'],
+    props:['index'],
     data() {
         return {
             nickname:'空位',
             readystate:0,
             selfstyle:{
-                position:'absolute',
-                left:'0px',
-                top:'0px',
                 width:'420px',
                 height:'80px',
                 border:'2px solid',
