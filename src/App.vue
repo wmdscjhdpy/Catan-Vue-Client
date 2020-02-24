@@ -4,7 +4,7 @@
       <hexagon v-for="hexa in gamemap.hexagon" :key="hexa.label" :P="hexa.Pos" :rollnum="hexa.number" :kind="hexa.kind"/>
       <node v-for="nod in gamemap.node" :key="nod.label" :P1="nod.Pos[0]" :P2="nod.Pos[1]" :P3="nod.Pos[2]"/>
       <road v-for="roa in gamemap.road" :key="roa.label" :P1="roa.Pos[0]" :P2="roa.Pos[1]"/>
-      <roll :num="Array(3,4)" style="position:absolute;left:1000px;top:50px"/>
+      <roll :num="roll" style="position:absolute;left:1000px;top:50px"/>
     </div>
     <div v-if="gamemap==null">
       <img :src="backgroundimg" width="900" height="900" style="position:absolute;left:100px;top:20px;"/>
@@ -36,7 +36,7 @@ export default {
     return{
       gamemap:null,
       backgroundimg:background,
-
+      roll:Array(0,0)
     }
   },
   beforeMount(){
