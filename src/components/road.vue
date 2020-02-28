@@ -1,5 +1,5 @@
 <template>
-    <div :class="'road'+String(this.P1.x)+String(this.P1.y)+String(this.P2.x)+String(this.P2.y)" :style="this.selfstyle" :onclick="'alert(`this is a'+this.roadid+'`)'">
+    <div :class="'road'+String(this.P1.x)+String(this.P1.y)+String(this.P2.x)+String(this.P2.y)" :style="this.selfstyle" @click="$emit('myClick',Array(P1,P2))">
     </div>
 </template>
 
@@ -30,7 +30,7 @@ export default {
         this.P1.y=Number(this.P1.y);
         this.P2.y=Number(this.P2.y);
         //初始化位置以及角度
-        this.roadid=gamecalc.calcRoadId(this.P1,this.P2);
+        this.roadid=gamecalc.calcRoadId(Array(this.P1,this.P2));
         this.calcPositionAndDeg();
 	},
     methods:{

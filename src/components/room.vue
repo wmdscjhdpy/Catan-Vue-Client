@@ -1,5 +1,5 @@
 <template>
-    <div :style="selfstyle">
+    <div>
     <scoreboard ref="sb0" index="0"/>
     <br>
     <scoreboard ref="sb1" index="1"/>
@@ -32,7 +32,6 @@ export default {
     components:{
         scoreboard
     },
-    props:['x','y'],
     data:function(){
         return{
             online:0,//标记当前客户端在线状态
@@ -44,11 +43,6 @@ export default {
             mynickname:'wmd',
             myreadystate:0,
             priviliege:0,            //是否是房主
-            selfstyle:{				 //用于改变样式
-                position:'absolute',
-                left:Number(this.x)+'px',
-                top:Number(this.y)+'px',
-            }
         }
     },
     mounted(){
@@ -58,7 +52,7 @@ export default {
     },
     methods:{
         connectServer(){
-            this.webSocket = new WebSocket("ws://192.168.2.5:2333");
+            this.webSocket = new WebSocket("ws://192.168.2.4:2333");
             this.webSocket.onopen = (event)=>{
                 this.showmsg+="【系统提示】已成功和服务器建立连接\n";
                 this.online=1;
@@ -146,7 +140,7 @@ export default {
             break;
         }
         //下面放的是游戏自身的数据处理逻辑
-        this.$emit('gameDataHandle',data);
+        this.$emit('gameDataHandle',data);//调用父函数来处理游戏数据 需要自己定义该函数
         if(data['showmsg']!=undefined)
             this.showmsg+=data['showmsg'];
         }

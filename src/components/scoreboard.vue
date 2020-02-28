@@ -28,7 +28,7 @@ export default {
     beforeMount() {
         //定义0-3为 蓝绿红黄
         //this.index=Number(this.index);
-        var colorarray=new Array('#0000ff','#00ff00','#ff0000','ffff00');
+        var colorarray=new Array('#0000ff','#00ff00','#ff0000','#ffff00');
         this.selfstyle.left=this.x+'px';
         this.selfstyle.top=this.y+'px';
         this.selfstyle['border-color']=colorarray[this.index];

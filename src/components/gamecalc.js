@@ -9,6 +9,8 @@ var G={       //常数全局变量集合Global
     homeside:40,
     nodelist:new Array()
 }
+
+/*由于核心代码转移到了后端，因此弃用了
 function getNearPosition(P,deg){//获取临近六边形坐标
     var newX=P.x,newY=P.y;
     while(deg<0)deg+=360;
@@ -48,7 +50,6 @@ function getNearPosition(P,deg){//获取临近六边形坐标
         y:newY
     }
 }
-
 function getAllNodeNearby(P)//获取和这个六边形相邻的所有节点
 {
     var retval=new Array();//node列表
@@ -77,7 +78,7 @@ function getAllRoadNeayBy(P)//获取该六边形临近的所有节点
     }
     return {val:retval,chk:retchk};
 }
-
+*/
 function calcHexagonId(P)
 {
     var hexagonid='hexagon-x'+String(P.x.toFixed(2))+'y'+String(P.y.toFixed(2));
@@ -85,20 +86,20 @@ function calcHexagonId(P)
     return hexagonid;
 }
 
-function calcNodeId(P1,P2,P3){//给每一个节点一个唯一编号
+function calcNodeId(P){//给每一个节点一个唯一编号
     var nodeid;
     var X,Y;
-    X=(P1.x+P2.x+P3.x)/3;
-    Y=(P1.y+P2.y+P3.y)/3;
+    X=(P[0].x+P[1].x+P[2].x)/3;
+    Y=(P[0].y+P[1].y+P[2].y)/3;
     nodeid='node-x'+String(X.toFixed(2))+'y'+String(Y.toFixed(2));
     nodeid=String(nodeid).replace(/\./g,'d');
     return nodeid;
 }
 
-function calcRoadId(P1,P2){//给每一个节点一个唯一编号
+function calcRoadId(P){//给每一个节点一个唯一编号
     var X,Y,roadid;
-    X=(P1.x+P2.x)/2;
-    Y=(P1.y+P2.y)/2;
+    X=(P[0].x+P[1].x)/2;
+    Y=(P[0].y+P[1].y)/2;
     roadid='road-x'+String(X.toFixed(2))+'y'+String(Y.toFixed(2));
     roadid=String(roadid).replace(/\./g,'d');
     return roadid;
@@ -118,7 +119,6 @@ function calcHexagonMiddle(blockx,blocky) {            ///计算对应坐标的�
     return {x:posX,y:posY};
 }
 export default{
-    getNearPosition,
     calcHexagonMiddle,
     G,
     calcNodeId,

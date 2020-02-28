@@ -2,7 +2,7 @@
     <div :style="selfstyle">
         <img :id="'node'+this.nodeid" :src="this.who[this.belongto][this.building]" :usemap="'#node-'+this.nodeid+'map'" width="40" height="40">
         <map :name="'node-'+this.nodeid+'map'">
-			<area shape="circle" coords="20,20,20" href="javascript:void(0);" :onclick="'alert(`this is a node   '+this.nodeid+'`)'">
+			<area shape="circle" coords="20,20,20" href="javascript:void(0);" @click="$emit('myClick',Array(P1,P2,P3))">
 		</map>
     </div>
 </template>
@@ -78,7 +78,7 @@
             this.P3.y=Number(this.P3.y);
             
 			this.calcXYPosition();
-            this.nodeid=gamecalc.calcNodeId(this.P1,this.P2,this.P3);
+            this.nodeid=gamecalc.calcNodeId(Array(this.P1,this.P2,this.P3));
 		},
         methods:{
             calcXYPosition(){

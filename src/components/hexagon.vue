@@ -5,7 +5,7 @@
 		<span v-if="rollnum!=7 && rollnum<10" style="position:absolute;left:86px;top:67px;"><font size ="20">{{rollnum}}</font></span>
 		<span v-if="rollnum!=7 && rollnum>=10" style="position:absolute;left:70px;top:68px;"><font size ="16">{{rollnum}}</font></span>
 		<map :name="this.hexagonid+'map'">
-			<area shape="circle" coords="100,100,80" href="javascript:void(0);" :onclick="'alert(`this is a area   '+'x:'+this.P.x+'  y:'+this.P.y+'`)'">
+			<area shape="circle" coords="100,100,80" :style="activestyle[active]" href="javascript:void(0);" @click="$emit('myClick',P)">
 		</map>
 	</div>
 </template>
@@ -19,11 +19,12 @@
 	import img_grass from '../assets/block/grass.png';
 	import gamecalc from '../components/gamecalc.js'
 	export default{
-		props:['P','rollnum','kind','robber'],
+		props:['P','rollnum','kind','robber','active'],
 		//P为坐标，坐标定义方式，以最中间的为原点，按照数学方法建立坐标系
 		//rollnum 区块的骰子数
 		//kind 地域类型
 		//robber 是否被强盗占领
+		//active 是否给用户点击操作
 		data:function(){
 			return{
 				hexagonid:0,
@@ -35,10 +36,18 @@
 					iron:img_iron,
 					grass:img_grass
 				},
-				selfstyle:{							//用于改变样式
+				selfstyle:{							//用于改变六边形定位
 					position:'absolute',
 					left:0+'px',
 					top:0+'px',
+				},
+				activestyle:{
+					0:{
+						cursor:'default'
+					},
+					1:{
+						cursor:'pointer'
+					}
 				}
 			}
 		},
@@ -61,22 +70,11 @@
 				posY=gamecalc.G.middleY-(gamecalc.G.hexagonside/2*3+gamecalc.G.roadside)*this.P.y;
 				this.selfstyle.left=posX+'px';
 				this.selfstyle.top=posY+'px';
+			},
+			post(){//产生提交触发事件
+				var send=[];
+				this.$refs.room.webSocket.send(JSON.stringify(send));
 			}
-
-			/*
-			testfunction(x1,y1){
-				var label,next;
-				for(var i=1;i<100;i++)
-				{
-					v_forToAddDOM(x1,y1,label);//在这里渲染一个DOM ref为label的值
-					next=this.$refs.label.calcNext();//使用刚刚渲染的label的方法进行迭代
-					//得到下一个DOM的参数
-					x1=next.x1;
-					y1=next.y1;
-					label=next.label;
-				}
-			}
-			*/
 		}
 	}
 </script>
