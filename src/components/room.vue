@@ -101,48 +101,48 @@ export default {
         },
         recv_handle(rawdata)
         {
-        var data;
-        data=JSON.parse(rawdata);
-        console.log(data);
-        switch (data.head) {
-            case 'priviliege':
-                this.priviliege=1;
-            break;
-            case 'enter':
-                if(data.nickname==this.mynickname)
-                {//这个人是自己
-                    this.myseat=Number(data.index);
-                    this.inroom=1;
-                }
-                this.$refs['sb'+data.index].nickname=data.nickname;
-            break;
-            case 'ready':
-                this.$refs['sb'+data.index].readystate=data.flag;
-            break;
-            case 'leave':
-                //清空房间信息
-                this.$refs['sb'+data.index].nickname=null;
-                this.$refs['sb'+data.index].readystate=0;
-            break;
-            case 'leavesuccess':
-                for(var i=0;i<4;i++)
-                {
-                    this.$refs['sb'+i].nickname=null;
-                    this.$refs['sb'+i].readystate=0;
-                }
-                this.inroom=0;
-                this.priviliege=0;
-                this.showmsg+="【系统提示】你回到了大厅\n";
-            break;
-            case 'error':
-                alert(data.showmsg);
-                data.showmsg=undefined;
-            break;
-        }
-        //下面放的是游戏自身的数据处理逻辑
-        this.$emit('gameDataHandle',data);//调用父函数来处理游戏数据 需要自己定义该函数
-        if(data['showmsg']!=undefined)
-            this.showmsg+=data['showmsg'];
+            var data;
+            data=JSON.parse(rawdata);
+            console.log(data);
+            switch (data.head) {
+                case 'priviliege':
+                    this.priviliege=1;
+                break;
+                case 'enter':
+                    if(data.nickname==this.mynickname)
+                    {//这个人是自己
+                        this.myseat=Number(data.index);
+                        this.inroom=1;
+                    }
+                    this.$refs['sb'+data.index].nickname=data.nickname;
+                break;
+                case 'ready':
+                    this.$refs['sb'+data.index].readystate=data.flag;
+                break;
+                case 'leave':
+                    //清空房间信息
+                    this.$refs['sb'+data.index].nickname=null;
+                    this.$refs['sb'+data.index].readystate=0;
+                break;
+                case 'leavesuccess':
+                    for(var i=0;i<4;i++)
+                    {
+                        this.$refs['sb'+i].nickname=null;
+                        this.$refs['sb'+i].readystate=0;
+                    }
+                    this.inroom=0;
+                    this.priviliege=0;
+                    this.showmsg+="【系统提示】你回到了大厅\n";
+                break;
+                case 'error':
+                    alert(data.showmsg);
+                    data.showmsg=undefined;
+                break;
+            }
+            //下面放的是游戏自身的数据处理逻辑
+            this.$emit('gameDataHandle',data);//调用父函数来处理游戏数据 需要自己定义该函数
+            if(data['showmsg']!=undefined)
+                this.showmsg+=data['showmsg'];
         }
     }
 }

@@ -1,5 +1,5 @@
 <template>
-    <div :class="'road'+String(this.P1.x)+String(this.P1.y)+String(this.P2.x)+String(this.P2.y)" :style="this.selfstyle" @click="$emit('myClick',Array(P1,P2))">
+    <div :class="'road'+String(this.P1.x)+String(this.P1.y)+String(this.P2.x)+String(this.P2.y)" :style="roadstyle" @click="$emit('myClick',index)">
     </div>
 </template>
 
@@ -7,7 +7,7 @@
 import gamecalc from './gamecalc';
 
 export default {
-    props:['P1','P2'],
+    props:['P1','P2','index','belongto'],
     data(){
         return{
             roadid:0,
@@ -31,8 +31,24 @@ export default {
         this.P2.y=Number(this.P2.y);
         //初始化位置以及角度
         this.roadid=gamecalc.calcRoadId(Array(this.P1,this.P2));
-        this.calcPositionAndDeg();
-	},
+    },
+    computed:{
+        roadstyle:function(){
+            console.log('computed');
+            var color={'-1':'white',0:'#0000ff',1:'#00ff00',2:'#ff0000',3:'#ffff00'};
+            var pos=this.calcPositionAndDeg();
+            return {
+                position:'absolute',
+                left:pos.posX+'px',
+                top:pos.posY+'px',
+                width: gamecalc.G.roadside+2+'px',
+                height: gamecalc.G.hexagonside-30+'px',
+                background:color[this.belongto],
+                transform:'rotate('+pos.Deg+'deg)',
+                cursor:'pointer'
+            }
+        }
+    },
     methods:{
         calcPositionAndDeg(){
             var pos1,pos2,posX,posY;
@@ -43,9 +59,11 @@ export default {
             //坐标位置移至左上角
             posX-=(gamecalc.G.roadside+2)/2;
             posY-=(gamecalc.G.hexagonside-30)/2;
-            this.selfstyle.left=posX+'px';
-            this.selfstyle.top=posY+'px';
-            this.selfstyle.transform='rotate('+this.calcRotateDeg()*-60+'deg)';
+            return{
+                posX,
+                posY,
+                Deg:this.calcRotateDeg()*-60
+            }
         },
         ///计算道路旋转角度
         calcRotateDeg(){

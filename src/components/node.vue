@@ -1,8 +1,8 @@
 <template>
     <div :style="selfstyle">
-        <img :id="'node'+this.nodeid" :src="this.who[this.belongto][this.building]" :usemap="'#node-'+this.nodeid+'map'" width="40" height="40">
+        <img :id="'node'+this.nodeid" :src="this.who[belongto][building]" :usemap="'#node-'+this.nodeid+'map'" width="40" height="40">
         <map :name="'node-'+this.nodeid+'map'">
-			<area shape="circle" coords="20,20,20" href="javascript:void(0);" @click="$emit('myClick',Array(P1,P2,P3))">
+			<area shape="circle" coords="20,20,20" href="javascript:void(0);" @click="$emit('myClick',index)">
 		</map>
     </div>
 </template>
@@ -26,37 +26,35 @@
     
 	import gamecalc from '../components/gamecalc.js'
     export default{
-        props:['P1','P2','P3'],
+        props:['P1','P2','P3','index','belongto','building'],
         data(){
             return{
                 nodeid:0,
-                belongto:"nobody",
-                building:"blank",
                 who:{
-                    nobody:{
+                    '-1':{
                         blank:nobodyimg
                     },
-                    blue:{
+                    0:{
                         home:bluehome,
                         city:bluecity
                     },
-                    green:{
+                    1:{
                         home:greenhome,
                         city:greencity
                     },
-                    yellow:{
+                    3:{
                         home:yellowhome,
                         city:yellowcity
                     },
-                    red:{
+                    2:{
                         home:redhome,
                         city:redcity
                     },
-                    purple:{
+                    4:{
                         home:purplehome,
                         city:purplecity
                     },
-                    sky:{
+                    5:{
                         home:skyhome,
                         city:skycity
                     }

@@ -5,7 +5,7 @@
 		<span v-if="rollnum!=7 && rollnum<10" style="position:absolute;left:86px;top:67px;"><font size ="20">{{rollnum}}</font></span>
 		<span v-if="rollnum!=7 && rollnum>=10" style="position:absolute;left:70px;top:68px;"><font size ="16">{{rollnum}}</font></span>
 		<map :name="this.hexagonid+'map'">
-			<area shape="circle" coords="100,100,80" :style="activestyle[active]" href="javascript:void(0);" @click="$emit('myClick',P)">
+			<area shape="circle" coords="100,100,80" :style="activestyle[0]" href="javascript:void(0);" @click="$emit('myClick',P)">
 		</map>
 	</div>
 </template>
@@ -19,7 +19,7 @@
 	import img_grass from '../assets/block/grass.png';
 	import gamecalc from '../components/gamecalc.js'
 	export default{
-		props:['P','rollnum','kind','robber','active'],
+		props:['P','rollnum','kind','robber','index'],
 		//P为坐标，坐标定义方式，以最中间的为原点，按照数学方法建立坐标系
 		//rollnum 区块的骰子数
 		//kind 地域类型
