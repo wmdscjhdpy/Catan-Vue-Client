@@ -112,6 +112,8 @@ export default {
                     if(data.nickname==this.mynickname)
                     {//这个人是自己
                         this.myseat=Number(data.index);
+                        console.log('我的id是');
+                        console.log(this.myseat);
                         this.inroom=1;
                     }
                     this.$refs['sb'+data.index].nickname=data.nickname;

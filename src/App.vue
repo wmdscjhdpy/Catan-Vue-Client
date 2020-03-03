@@ -13,6 +13,7 @@
       <room ref="room" @gameDataHandle="gameDataHandle"/>
       <div v-if="gamemap!=null">
       <button  @click="getCard()" style="resize:none;font-size:16px;">我要抽卡！</button>
+      <button @click="test()">测试</button>
       </div>
     </div>
   </div>
@@ -90,7 +91,7 @@ export default {
       var ret={};
       if(this.gamemap['status']['turn']==this.$refs.room.myseat)//确认是自己的回合
       {
-        if(this.gamemap['status']['process']==1)//处于初始放村状态
+        if(this.gamemap['status']['process']==1 && this.gamemap['node'][index]['belongto']==-1)//处于初始放村状态
         {
           if(confirm('就决定是这里是你的初始村吗？')==true)
           {
@@ -98,7 +99,7 @@ export default {
             ret['index']=index;
             this.$refs.room.webSocket.send(JSON.stringify(ret));
           }
-        }else if(this.gamemap['ststus']['process']==4)//处于建设状态
+        }else if(this.gamemap['status']['process']==4 && this.gamemap['node'][index]['belongto']==-1)//处于建设状态
         {
           if(confirm('就决定是这里是你的新村吗？')==true)
           {
@@ -112,8 +113,28 @@ export default {
         }
       }
     },
-    roadHandle(P){//road事件代理函数
-      alert('road');
+    roadHandle(index){//road事件代理函数
+      var ret={};
+      if(this.gamemap['status']['turn']==this.$refs.room.myseat)//确认是自己的回合
+      {
+        if(this.gamemap['status']['process']==2 && this.gamemap['road'][index]['belongto']==-1)//处于初始放路状态
+        {
+          if(confirm('就决定是这里是你的附带道路吗？')==true)
+          {
+            ret['head']='buildroad';
+            ret['index']=index;
+            this.$refs.room.webSocket.send(JSON.stringify(ret));
+          }
+        }else if(this.gamemap['status']['process']==4 && this.gamemap['road'][index]['belongto']==-1)//处于建设状态
+        {
+          if(confirm('就决定是这里是你的新路吗？')==true)
+          {
+            ret['head']='buildroad';
+            ret['index']=index;
+            this.$refs.room.webSocket.send(JSON.stringify(ret));
+          }
+        }
+      }
     },
     rollHandle(){
       if(this.gamemap['status']['process']==3 && this.gamemap['status']['turn']==this.$refs.room.myseat)//是自己扔骰子的回合
@@ -150,6 +171,9 @@ export default {
     getCard()
     {
 
+    },
+    test(){
+      console.log(this.gamemap);
     }
   },
 }
