@@ -13,6 +13,7 @@
     <div style="position:absolute;left:1300px;top:10px">
       <room ref="room" @gameDataHandle="gameDataHandle"/>
       <div v-if="gamemap!=null">
+      <privateboard :resources="mydata['resources']" style="position:absolute;left:0px;top:700px"/>
       <button  @click="getCard()" style="resize:none;font-size:16px;">我要抽卡！</button>
       <button @click="test()">测试</button>
       </div>
@@ -29,6 +30,7 @@ import road from './components/road.vue'
 import gamecalc from './components/gamecalc.js'
 import room from './components/room.vue'
 import roll from './components/roll.vue'
+import privateboard from './components/privateboard'
 
 export default {
   name: 'App',
@@ -37,7 +39,8 @@ export default {
     node,
     road,
     room,
-    roll
+    roll,
+    privateboard
   },
   data:function(){
     return{
@@ -66,7 +69,6 @@ export default {
       //上面的case为房间维护相关 和游戏无关
       case 'startgame':
         this.gamemap=data;
-        this.mydata=data['private'];
         //这里会存在一个很难受的问题，gamemap不可避免的引入了通讯数据头以及showmsg之类的消息，而且还有private类型消息在内 JS就不能给我开放原始操作吗
       break;
       case 'update':
@@ -103,13 +105,25 @@ export default {
             ret['index']=index;
             this.$refs.room.webSocket.send(JSON.stringify(ret));
           }
-        }else if(this.gamemap['status']['process']==4 && this.gamemap['node'][index]['belongto']==-1)//处于建设状态
+        }else if(this.gamemap['status']['process']==4)//处于建设状态
         {
-          if(confirm('就决定是这里是你的新村吗？')==true)
+          if(this.gamemap['node'][index]['belongto']==this.$refs.room.myseat && this.gamemap['node']['building']=='home')
           {
-            ret['head']='buildhome';
-            ret['index']=index;
-            this.$refs.room.webSocket.send(JSON.stringify(ret));
+            //判断为建城            
+            if(confirm('就决定是这里是你的新城镇吗？')==true)
+            {
+              ret['head']='buildcity';
+              ret['index']=index;
+              this.$refs.room.webSocket.send(JSON.stringify(ret));
+            }
+          }else if(this.gamemap['node'][index]['belongto']==-1)
+          {
+            if(confirm('就决定是这里是你的新村吗？')==true)
+            {
+              ret['head']='buildhome';
+              ret['index']=index;
+              this.$refs.room.webSocket.send(JSON.stringify(ret));
+            }
           }
         }else if(this.gamemap['status']['extra']==2)//处于强盗指定抽牌状态
         {

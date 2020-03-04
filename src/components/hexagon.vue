@@ -1,7 +1,8 @@
 <template>
 	<div :style="selfstyle">
 		<img :src="this.kindimg[this.kind]" :usemap="'#'+this.hexagonid+'map'">
-		<div v-if="rollnum!=7" style="position:absolute;left:70px;top:70px;width:60px;height:60px;background:#ffffcc;border-radius:30px"/>
+		<div v-if="rollnum!=7 && !robber" style="position:absolute;left:70px;top:70px;width:60px;height:60px;background:#ffffcc;border-radius:30px"/>
+		<div v-if="robber" style="position:absolute;left:70px;top:70px;width:60px;height:60px;background:black;border-radius:30px"/>
 		<span v-if="rollnum!=7 && rollnum<10" style="position:absolute;left:86px;top:67px;"><font size ="20">{{rollnum}}</font></span>
 		<span v-if="rollnum!=7 && rollnum>=10" style="position:absolute;left:70px;top:68px;"><font size ="16">{{rollnum}}</font></span>
 		<map :name="this.hexagonid+'map'">

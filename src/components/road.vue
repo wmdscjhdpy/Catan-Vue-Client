@@ -34,7 +34,6 @@ export default {
     },
     computed:{
         roadstyle:function(){
-            console.log('computed');
             var color={'-1':'white',0:'#0000ff',1:'#00ff00',2:'#ff0000',3:'#ffff00'};
             var pos=this.calcPositionAndDeg();
             return {
