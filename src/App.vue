@@ -5,6 +5,7 @@
       <node @myClick="nodeHandle"  v-for="(nod,index) in gamemap.node" :ref="calcNodeId(nod.Pos)" :key="nod.label" :P1="nod.Pos[0]" :P2="nod.Pos[1]" :P3="nod.Pos[2]" :belongto="nod.belongto" :building="nod.building" :index="index"/>
       <road @myClick="roadHandle"  v-for="(roa,index) in gamemap.road" :ref="calcRoadId(roa.Pos)" :key="roa.label" :P1="roa.Pos[0]" :P2="roa.Pos[1]" :belongto="roa.belongto" :index="index"/>
       <roll @myClick="rollHandle" :num="roll" style="position:absolute;left:1000px;top:50px"/>
+      <span v-if="myturn" style="position:absolute;left:1050px;top:650px;width:200px;font-size:30px">轮到你了！</span>
     </div>
     <div v-if="gamemap==null">
       <img :src="backgroundimg" width="900" height="900" style="position:absolute;left:100px;top:20px;"/>
@@ -46,8 +47,11 @@ export default {
       roll:Array(0,0),            //骰子数据
     }
   },
-  beforeMount(){
-
+  computed:{
+    myturn:function(){
+      if(this.$refs.room.myseat==this.gamemap['status']['turn'])return 1;
+      else return 0;
+    }
   },
   mounted(){
 
@@ -89,7 +93,7 @@ export default {
     },
     nodeHandle(index){//node事件代理函数
       var ret={};
-      if(this.gamemap['status']['turn']==this.$refs.room.myseat)//确认是自己的回合
+      if(this.myturn)//确认是自己的回合
       {
         if(this.gamemap['status']['process']==1 && this.gamemap['node'][index]['belongto']==-1)//处于初始放村状态
         {
@@ -115,7 +119,7 @@ export default {
     },
     roadHandle(index){//road事件代理函数
       var ret={};
-      if(this.gamemap['status']['turn']==this.$refs.room.myseat)//确认是自己的回合
+      if(this.myturn)//确认是自己的回合
       {
         if(this.gamemap['status']['process']==2 && this.gamemap['road'][index]['belongto']==-1)//处于初始放路状态
         {
@@ -137,7 +141,7 @@ export default {
       }
     },
     rollHandle(){
-      if(this.gamemap['status']['process']==3 && this.gamemap['status']['turn']==this.$refs.room.myseat)//是自己扔骰子的回合
+      if(this.gamemap['status']['process']==3 && this.myturn)//是自己扔骰子的回合
       {
         var send=[];
         send['head']='roll';
