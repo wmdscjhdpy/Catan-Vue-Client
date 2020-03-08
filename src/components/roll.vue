@@ -1,5 +1,5 @@
 <template>
-    <div style="cursor:pointer;" @click="rolling()">
+    <div style="cursor:pointer;" @click="$emit('myClick')">
         <img :src="roll[num[0]]" height="100" width="100" style="position:absolute;left:0px;top:0px;"/>
         <img :src="roll[num[1]]" height="100" width="100" style="position:absolute;left:120px;top:0px;"/>
     </div>
@@ -30,9 +30,6 @@ export default {
         }
     },
     methods:{
-        rolling(){
-            alert('rolling');
-        }
     }
 }
 </script>

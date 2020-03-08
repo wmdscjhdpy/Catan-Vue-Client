@@ -13,8 +13,9 @@
     <div style="position:absolute;left:1300px;top:10px">
       <room ref="room" @gameDataHandle="gameDataHandle"/>
       <div v-if="gamemap!=null">
-      <privateboard :resources="mydata['resources']" style="position:absolute;left:0px;top:700px"/>
+      <privateboard @myClick="changeRes" :resources="mydata['resources']" style="position:absolute;left:0px;top:700px"/>
       <button  @click="getCard()" style="resize:none;font-size:16px;">我要抽卡！</button>
+      <button @click="endturn()" style="resize:none;font-size:16px;">结束建设</button>
       <button @click="test()">测试</button>
       </div>
     </div>
@@ -88,6 +89,9 @@ export default {
           pointer[data['key'][i]]=data['data'];
         }
       break;
+      case 'roll':
+        this.roll=data['roll'];
+      break;
       }
     },
     hexagonHandle(P){//hexagon事件代理函数
@@ -157,9 +161,11 @@ export default {
     rollHandle(){
       if(this.gamemap['status']['process']==3 && this.myturn)//是自己扔骰子的回合
       {
-        var send=[];
+        var send={};
         send['head']='roll';
         this.$refs.room.webSocket.send(JSON.stringify(send));
+      }else{
+        alert('现在还不是你丢骰子的时候！');
       }
     },
     //被迫使用复制的方式来达到使用的目的了。。。
@@ -186,9 +192,21 @@ export default {
         roadid=String(roadid).replace(/\./g,'d');
         return roadid;
     },
+    changeRes(input,output){
+      var send={};
+      send['head']='change';
+      send['input']=input;
+      send['output']=output;
+      this.$refs.room.webSocket.send(JSON.stringify(send));
+    },
     getCard()
     {
 
+    },
+    endturn(){
+      var send={};
+      send['head']='endturn';
+      this.$refs.room.webSocket.send(JSON.stringify(send));
     },
     test(){
       console.log(this.gamemap);
