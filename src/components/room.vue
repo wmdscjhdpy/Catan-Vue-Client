@@ -1,13 +1,9 @@
 <template>
     <div>
-    <scoreboard ref="sb0" index="0"/>
-    <br>
-    <scoreboard ref="sb1" index="1"/>
-    <br>
-    <scoreboard ref="sb2" index="2"/>
-    <br>
-    <scoreboard ref="sb3" index="3"/>
-    <br>
+    <playerboard ref="sb0" index="0" :map="map"/>
+    <playerboard ref="sb1" index="1" :map="map"/>
+    <playerboard ref="sb2" index="2" :map="map"/>
+    <playerboard ref="sb3" index="3" :map="map"/>
     <textarea class="messagewindow" rows="10" cols="50" readonly style="resize:none;font-size:16px;overflow:auto;" v-model="this.showmsg"/>
     <br>
     <span>你的游戏名字:</span>
@@ -26,12 +22,13 @@
 </template>
 
 <script>
-import scoreboard from './scoreboard.vue'; //导入计分板零件
+import playerboard from './playerboard.vue'; //导入计分板零件
 import gamecalc from './gamecalc';
 export default {
     components:{
-        scoreboard
+        playerboard
     },
+    props:['map'],
     data:function(){
         return{
             online:0,//标记当前客户端在线状态

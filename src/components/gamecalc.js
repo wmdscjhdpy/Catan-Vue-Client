@@ -7,7 +7,8 @@ var G={       //常数全局变量集合Global
     hexagonhigh:172,
     roadside:18,          //路的宽度（两个六边形的间隔）
     homeside:40,
-    nodelist:new Array()
+    reslistCN:Array('木头','铁'   ,'羊毛' ,'小麦' ,'石头' ,'士兵'    ,'丰收之年','垄断'   ,'道路建设'     ,'胜利点'),
+    reslist:Array('forest','iron','grass','wheat','stone','solders','harvest','monopoly','roadbuilding','winpoint')
 }
 
 /*由于核心代码转移到了后端，因此弃用了

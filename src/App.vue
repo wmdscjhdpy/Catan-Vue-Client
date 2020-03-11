@@ -1,9 +1,9 @@
 <template>
   <div id="app">
     <div v-if="gamemap!=null">
-      <hexagon @myClick="hexagonHandle" v-for="(hexa,index) in gamemap.hexagon" :ref="calcHexagonId(hexa.Pos)" :key="hexa.label" :P="hexa.Pos" :rollnum="hexa.number" :kind="hexa.kind" :index="index"/>
-      <node @myClick="nodeHandle"  v-for="(nod,index) in gamemap.node" :ref="calcNodeId(nod.Pos)" :key="nod.label" :P1="nod.Pos[0]" :P2="nod.Pos[1]" :P3="nod.Pos[2]" :belongto="nod.belongto" :building="nod.building" :index="index"/>
-      <road @myClick="roadHandle"  v-for="(roa,index) in gamemap.road" :ref="calcRoadId(roa.Pos)" :key="roa.label" :P1="roa.Pos[0]" :P2="roa.Pos[1]" :belongto="roa.belongto" :index="index"/>
+      <hexagon @myClick="hexagonHandle" v-for="(hexa,index) in gamemap.hexagon" :key="hexa.label" :P="hexa.Pos" :rollnum="hexa.number" :kind="hexa.kind" :index="index"/>
+      <node @myClick="nodeHandle"  v-for="(nod,index) in gamemap.node" :key="nod.label" :P1="nod.Pos[0]" :P2="nod.Pos[1]" :P3="nod.Pos[2]" :belongto="nod.belongto" :building="nod.building" :index="index"/>
+      <road @myClick="roadHandle"  v-for="(roa,index) in gamemap.road" :key="roa.label" :P1="roa.Pos[0]" :P2="roa.Pos[1]" :belongto="roa.belongto" :index="index"/>
       <roll @myClick="rollHandle" :num="roll" style="position:absolute;left:1000px;top:50px"/>
       <span v-if="myturn" style="position:absolute;left:1050px;top:650px;width:200px;font-size:30px">轮到你了！</span>
     </div>
@@ -11,8 +11,8 @@
       <img :src="backgroundimg" width="900" height="900" style="position:absolute;left:100px;top:20px;"/>
     </div>
     <div style="position:absolute;left:1300px;top:10px">
-      <room ref="room" @gameDataHandle="gameDataHandle"/>
-      <div v-if="gamemap!=null">
+      <room ref="room" @gameDataHandle="gameDataHandle" :map="gamemap"/>
+      <div v-if="gamemap!=null && mydata!=null">
       <privateboard @myClick="changeRes" :resources="mydata['resources']" style="position:absolute;left:0px;top:700px"/>
       <button  @click="getCard()" style="resize:none;font-size:16px;">我要抽卡！</button>
       <button @click="endturn()" style="resize:none;font-size:16px;">结束建设</button>
@@ -71,6 +71,8 @@ export default {
       case 'startgame':
         this.gamemap=data;
         //这里会存在一个很难受的问题，gamemap不可避免的引入了通讯数据头以及showmsg之类的消息，而且还有private类型消息在内 JS就不能给我开放原始操作吗
+        console.log(this.gamemap);
+        debugger
       break;
       case 'update':
         var pointer;
@@ -91,6 +93,9 @@ export default {
       break;
       case 'roll':
         this.roll=data['roll'];
+      break;
+      case 'msg':
+        //纯消息，不处理
       break;
       }
     },
@@ -168,32 +173,14 @@ export default {
         alert('现在还不是你丢骰子的时候！');
       }
     },
-    //被迫使用复制的方式来达到使用的目的了。。。
-    calcHexagonId(P)
-    {
-        var hexagonid='hexagon-x'+String(P.x.toFixed(2))+'y'+String(P.y.toFixed(2));
-        hexagonid=String(hexagonid).replace(/\./g,'d');
-        return hexagonid;
-    },
-    calcNodeId(P){//给每一个节点一个唯一编号
-      var nodeid;
-      var X,Y;
-      X=(P[0].x+P[1].x+P[2].x)/3;
-      Y=(P[0].y+P[1].y+P[2].y)/3;
-      nodeid='node-x'+String(X.toFixed(2))+'y'+String(Y.toFixed(2));
-      nodeid=String(nodeid).replace(/\./g,'d');
-      return nodeid;
-    },
-    calcRoadId(P){//给每一个节点一个唯一编号
-        var X,Y,roadid;
-        X=(P[0].x+P[1].x)/2;
-        Y=(P[0].y+P[1].y)/2;
-        roadid='road-x'+String(X.toFixed(2))+'y'+String(Y.toFixed(2));
-        roadid=String(roadid).replace(/\./g,'d');
-        return roadid;
-    },
     changeRes(input,output){
       var send={};
+      var index=gamecalc.G.reslist.indexOf(input);
+      if(this.mydata['resources'][input]<4)
+      {
+        alert("你的"+gamecalc.G.reslistCN[index]+"不足以进行这次交换！");
+        return;
+      }
       send['head']='change';
       send['input']=input;
       send['output']=output;
