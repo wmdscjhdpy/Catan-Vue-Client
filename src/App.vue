@@ -13,10 +13,10 @@
     <div style="position:absolute;left:1300px;top:10px">
       <room ref="room" @gameDataHandle="gameDataHandle" :map="gamemap"/>
       <div v-if="gamemap!=null && mydata!=null">
-      <privateboard @myClick="changeRes" :resources="mydata['resources']" style="position:absolute;left:0px;top:700px"/>
-      <button  @click="getCard()" style="resize:none;font-size:16px;">我要抽卡！</button>
-      <button @click="endturn()" style="resize:none;font-size:16px;">结束建设</button>
-      <button @click="test()">测试</button>
+        <privateboard @myClick="changeRes" :robflag="robflag" :resources="mydata['resources']" style="position:absolute;left:0px;top:700px"/>
+        <button  @click="getCard()" style="resize:none;font-size:16px;">我要抽卡！</button>
+        <button @click="endturn()" style="resize:none;font-size:16px;">结束建设</button>
+        <button @click="test()">测试</button>
       </div>
     </div>
   </div>
@@ -55,6 +55,12 @@ export default {
     myturn:function(){
       if(this.$refs.room.myseat==this.gamemap['status']['turn'])return 1;
       else return 0;
+    },
+    robflag:function(){//判断是否需要丢牌的标志位
+      console.log(this.$refs.room.myseat);
+      if(this.gamemap['player'][this.$refs.room.myseat]['resources']>=7
+      && this.gamemap['status']['extra']==1)return true;
+      else return false;
     }
   },
   mounted(){
@@ -71,8 +77,6 @@ export default {
       case 'startgame':
         this.gamemap=data;
         //这里会存在一个很难受的问题，gamemap不可避免的引入了通讯数据头以及showmsg之类的消息，而且还有private类型消息在内 JS就不能给我开放原始操作吗
-        console.log(this.gamemap);
-        debugger
       break;
       case 'update':
         var pointer;
@@ -117,21 +121,34 @@ export default {
         }else if(this.gamemap['status']['process']==4)//处于建设状态
         {
           if(this.gamemap['node'][index]['belongto']==this.$refs.room.myseat && this.gamemap['node']['building']=='home')
-          {
-            //判断为建城            
-            if(confirm('就决定是这里是你的新城镇吗？')==true)
+          {//判断为建城            
+            if(this.mydata['resources']['wheat']>=2
+            && this.mydata['resources']['stone']>=3)
             {
-              ret['head']='buildcity';
-              ret['index']=index;
-              this.$refs.room.webSocket.send(JSON.stringify(ret));
+              if(confirm('就决定是这里是你的新城镇吗？')==true)
+              {
+                ret['head']='buildcity';
+                ret['index']=index;
+                this.$refs.room.webSocket.send(JSON.stringify(ret));
+              }
+            }else{
+              alert('您的建城资源不足！需要：2稻草3石头');
             }
           }else if(this.gamemap['node'][index]['belongto']==-1)
-          {
-            if(confirm('就决定是这里是你的新村吗？')==true)
+          {//判断为建村
+            if(this.mydata['resources']['forest']>=1
+            && this.mydata['resources']['iron']>=1
+            && this.mydata['resources']['grass']>=1
+            && this.mydata['resources']['wheat']>=1)
             {
-              ret['head']='buildhome';
-              ret['index']=index;
-              this.$refs.room.webSocket.send(JSON.stringify(ret));
+              if(confirm('就决定是这里是你的新村吗？')==true)
+              {
+                ret['head']='buildhome';
+                ret['index']=index;
+                this.$refs.room.webSocket.send(JSON.stringify(ret));
+              }
+            }else{
+              alert('资源不足！请确认您的建村资源：1木头1铁1羊毛1稻草');
             }
           }
         }else if(this.gamemap['status']['extra']==2)//处于强盗指定抽牌状态
@@ -154,12 +171,18 @@ export default {
           }
         }else if(this.gamemap['status']['process']==4 && this.gamemap['road'][index]['belongto']==-1)//处于建设状态
         {
-          if(confirm('就决定是这里是你的新路吗？')==true)
-          {
-            ret['head']='buildroad';
-            ret['index']=index;
-            this.$refs.room.webSocket.send(JSON.stringify(ret));
-          }
+            if(this.mydata['resources']['forest']>=1
+            && this.mydata['resources']['iron']>=1)
+            {
+              if(confirm('就决定是这里是你的新路吗？')==true)
+              {
+                ret['head']='buildroad';
+                ret['index']=index;
+                this.$refs.room.webSocket.send(JSON.stringify(ret));
+              }
+            }else{
+              alert('资源不足！请确认你的修路资源：1铁1木头');
+            }
         }
       }
     },
@@ -176,15 +199,20 @@ export default {
     changeRes(input,output){
       var send={};
       var index=gamecalc.G.reslist.indexOf(input);
-      if(this.mydata['resources'][input]<4)
+      if(this.myturn && this.gamemap['status']['process']==4)
       {
-        alert("你的"+gamecalc.G.reslistCN[index]+"不足以进行这次交换！");
-        return;
+        if(this.mydata['resources'][input]<4)
+        {
+          alert("你的"+gamecalc.G.reslistCN[index]+"不足以进行这次交换！");
+          return;
+        }
+        send['head']='change';
+        send['input']=input;
+        send['output']=output;
+        this.$refs.room.webSocket.send(JSON.stringify(send));
+      }else{
+        alert('现在还不是你的建设阶段，无法进行交换！');
       }
-      send['head']='change';
-      send['input']=input;
-      send['output']=output;
-      this.$refs.room.webSocket.send(JSON.stringify(send));
     },
     getCard()
     {
@@ -197,6 +225,7 @@ export default {
     },
     test(){
       console.log(this.gamemap);
+      console.log(this.mydata);
     }
   },
 }

@@ -1,5 +1,5 @@
 <template>
-    <div :class="'road'+String(this.P1.x)+String(this.P1.y)+String(this.P2.x)+String(this.P2.y)" :style="roadstyle" @click="$emit('myClick',index)">
+    <div :class="'road'+this.roadid" :style="roadstyle" @click="$emit('myClick',index)">
     </div>
 </template>
 
@@ -11,16 +11,6 @@ export default {
     data(){
         return{
             roadid:0,
-            selfstyle:{
-                position:'absolute',
-                left:0+'px',
-                top:0+'px',
-                width: gamecalc.G.roadside+2+'px',
-                height: gamecalc.G.hexagonside-30+'px',
-                background: 'white',
-                transform:'rotate('+0+'deg)',
-                cursor:'pointer'
-            }
         }
     },
     beforeMount(){
@@ -30,7 +20,7 @@ export default {
         this.P1.y=Number(this.P1.y);
         this.P2.y=Number(this.P2.y);
         //初始化位置以及角度
-        this.roadid=gamecalc.calcRoadId(Array(this.P1,this.P2));
+        this.roadid=this.calcRoadId(Array(this.P1,this.P2));
     },
     computed:{
         roadstyle:function(){
@@ -63,6 +53,14 @@ export default {
                 posY,
                 Deg:this.calcRotateDeg()*-60
             }
+        },
+        calcRoadId(P){//给每一个节点一个唯一编号
+            var X,Y,roadid;
+            X=(P[0].x+P[1].x)/2;
+            Y=(P[0].y+P[1].y)/2;
+            roadid='road-x'+String(X.toFixed(2))+'y'+String(Y.toFixed(2));
+            roadid=String(roadid).replace(/\./g,'d');
+            return roadid;
         },
         ///计算道路旋转角度
         calcRotateDeg(){

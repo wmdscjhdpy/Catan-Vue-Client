@@ -4,7 +4,7 @@
     <playerboard ref="sb1" index="1" :map="map"/>
     <playerboard ref="sb2" index="2" :map="map"/>
     <playerboard ref="sb3" index="3" :map="map"/>
-    <textarea class="messagewindow" rows="10" cols="50" readonly style="resize:none;font-size:16px;overflow:auto;" v-model="this.showmsg"/>
+    <textarea id="messagewindow" rows="10" cols="50" readonly style="resize:none;font-size:16px;overflow:auto;" v-model="this.showmsg"/>
     <br>
     <span>你的游戏名字:</span>
     <input type="text" v-model="mynickname" name="nickname" style="width:100px;resize:none;font-size:16px;">
@@ -109,8 +109,6 @@ export default {
                     if(data.nickname==this.mynickname)
                     {//这个人是自己
                         this.myseat=Number(data.index);
-                        console.log('我的id是');
-                        console.log(this.myseat);
                         this.inroom=1;
                     }
                     this.$refs['sb'+data.index].nickname=data.nickname;
@@ -141,7 +139,11 @@ export default {
             //下面放的是游戏自身的数据处理逻辑
             this.$emit('gameDataHandle',data);//调用父函数来处理游戏数据 需要自己定义该函数
             if(data['showmsg']!=undefined)
+            {
                 this.showmsg+=data['showmsg'];
+                let mymsg=document.getElementById('messagewindow');
+                mymsg.scrollTop = mymsg.scrollHeight;
+            }
         }
     }
 }

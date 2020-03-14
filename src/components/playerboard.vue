@@ -37,9 +37,6 @@ export default {
         this.selfstyle.top=this.y+'px';
         this.selfstyle['border-color']=colorarray[this.index];
     },
-    updated(){
-        console.log(this.map);
-    },
     methods: {
         
     },
