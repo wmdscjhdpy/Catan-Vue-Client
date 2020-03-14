@@ -4,8 +4,9 @@
             <img v-if="tobechange==index-1" :src="change" width="35" height="35" style="position:absolute">
             <img :src="ico[index-1]" width="80" height="64" @click="iconClick(index-1)" @contextmenu.prevent="iconRightClick(index-1)"/>
             <br>
-            <span v-if="!robflag" class="shownum">{{resources[list[index-1]]}}</span>
+            <span class="shownum">{{resources[list[index-1]]}}</span><span v-if="robflag" class="shownum" style="color:red">- {{roblist[index-1]}}</span>
         </div>
+        <button v-if="robflag " @click="submitRes()" style="resize:none;font-size:16px;position:absolute;left:400px;top:10px;">上缴（{{robsum}}）</button>
     </div>
 
 </template>
@@ -23,8 +24,19 @@ export default {
             change:changeico,
             tobechange:-1,//准备作为交换的资源索引
             ico:Array(forestico,ironico,grassico,wheatico,stoneico),
-            roblist:Array(0,0,0,0,0),//作为需要上缴的物资列表
+            //botlist:[0,0,0,0,0],
+            roblist:{0:0,1:0,2:0,3:0,4:0},//作为需要上缴的物资列表
             list:Array('forest','iron','grass','wheat','stone','solders','harvest','monopoly','roadbuilding','winpoint')
+        }
+    },
+    computed:{
+        robsum(){
+            var sum=0;
+            for(var i=0;i<5;i++)
+            {
+                sum+=this.roblist[i];
+            }
+            return sum;
         }
     },
     methods:{
@@ -33,6 +45,7 @@ export default {
             if(this.robflag)//上缴资源功能
             {
                 this.roblist[index]+=1;
+                if(this.roblist[index]>this.resources[this.list[index]])this.roblist[index]=this.resources[this.list[index]];
             }else{//交换资源功能
                 if(this.tobechange==-1)//还未选中任何被交换资源
                 {
@@ -52,11 +65,25 @@ export default {
         },
         iconRightClick(index)
         {
-            alert('right click');
             if(this.robflag)//上缴资源功能
             {
                 this.roblist[index]-=1;
                 if(this.roblist[index]<0)this.roblist[index]=0;
+            }
+        },
+        submitRes()
+        {
+            var ressum=0;
+            for(var i=0;i<5;i++)
+            {
+                ressum+=this.resources[this.list[i]];
+            }
+            if(this.robsum==Math.floor(ressum/2))
+            {
+                this.$emit('discard',this.roblist);
+                //清零
+            }else{
+                alert("你上缴的资源数目不正确，需要上缴的资源："+String(Math.floor(ressum/2)))
             }
         }
     }

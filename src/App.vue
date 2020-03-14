@@ -13,7 +13,7 @@
     <div style="position:absolute;left:1300px;top:10px">
       <room ref="room" @gameDataHandle="gameDataHandle" :map="gamemap"/>
       <div v-if="gamemap!=null && mydata!=null">
-        <privateboard @myClick="changeRes" :robflag="robflag" :resources="mydata['resources']" style="position:absolute;left:0px;top:700px"/>
+        <privateboard @myClick="changeRes" @discard="discardRes" :robflag="robflag" :resources="mydata['resources']" style="position:absolute;left:0px;top:700px"/>
         <button  @click="getCard()" style="resize:none;font-size:16px;">我要抽卡！</button>
         <button @click="endturn()" style="resize:none;font-size:16px;">结束建设</button>
         <button @click="test()">测试</button>
@@ -57,7 +57,6 @@ export default {
       else return 0;
     },
     robflag:function(){//判断是否需要丢牌的标志位
-      console.log(this.$refs.room.myseat);
       if(this.gamemap['player'][this.$refs.room.myseat]['resources']>=7
       && this.gamemap['status']['extra']==1)return true;
       else return false;
@@ -213,6 +212,18 @@ export default {
       }else{
         alert('现在还不是你的建设阶段，无法进行交换！');
       }
+    },
+    discardRes(roblist){
+      console.log(roblist);
+      var send={};
+      send['head']='discard';
+      for(var i=0;i<5;i++)
+      {
+        send[i]=roblist[i];
+      }
+      this.$refs.room.webSocket.send(JSON.stringify(send));
+      //为了不重复上缴，去除robflag标志
+      this.gamemap['status']['extra']=0;
     },
     getCard()
     {
