@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <div v-if="gamemap!=null">
-      <hexagon @myClick="hexagonHandle" v-for="(hexa,index) in gamemap.hexagon" :key="hexa.label" :P="hexa.Pos" :rollnum="hexa.number" :kind="hexa.kind" :index="index"/>
+      <hexagon @myClick="hexagonHandle" v-for="(hexa,index) in gamemap.hexagon" :key="hexa.label" :P="hexa.Pos" :rollnum="hexa.number" :kind="hexa.kind" :index="index" :robber="hexa.robber"/>
       <node @myClick="nodeHandle"  v-for="(nod,index) in gamemap.node" :key="nod.label" :P1="nod.Pos[0]" :P2="nod.Pos[1]" :P3="nod.Pos[2]" :belongto="nod.belongto" :building="nod.building" :index="index"/>
       <road @myClick="roadHandle"  v-for="(roa,index) in gamemap.road" :key="roa.label" :P1="roa.Pos[0]" :P2="roa.Pos[1]" :belongto="roa.belongto" :index="index"/>
       <roll @myClick="rollHandle" :num="roll" style="position:absolute;left:1000px;top:50px"/>
@@ -102,8 +102,20 @@ export default {
       break;
       }
     },
-    hexagonHandle(P){//hexagon事件代理函数
-
+    hexagonHandle(index){//hexagon事件代理函数
+      //仅强盗时按键有效
+      if(this.gamemap['status']['extra']==2
+      && this.myturn
+      && this.gamemap['hexagon'][index]['robber']!=true)
+      {
+        if(confirm("就决定放在这个位置了吗？"))
+        {
+          var send={};
+          send['head']='moverob';
+          send['index']=index;
+          this.$refs.room.webSocket.send(JSON.stringify(send));
+        }
+      }
     },
     nodeHandle(index){//node事件代理函数
       var ret={};
@@ -150,9 +162,22 @@ export default {
               alert('资源不足！请确认您的建村资源：1木头1铁1羊毛1稻草');
             }
           }
-        }else if(this.gamemap['status']['extra']==2)//处于强盗指定抽牌状态
+        }else if(this.gamemap['status']['extra']==3)//处于强盗指定抽牌状态
         {
-          //TODO:强盗抽牌逻辑
+          if(this.gamemap['node'][index]['belongto']!=this.$refs.room.myseat)
+          {
+            if(this.gamemap['node'][index]['belongto']==-1
+            && !confirm('你选的位置属于无人区，你确定要放弃抽取其他玩家一张牌吗？'))
+            {
+              return;
+            }
+            var send={};
+            send['head']='robacard';
+            send['index']=this.gamemap['node'][index]['belongto'];
+            this.$refs.room.webSocket.send(JSON.stringify(send));
+          }else{
+            alert('不能选择抽自己的牌！');
+          }
         }
       }
     },

@@ -6,7 +6,7 @@
 		<span v-if="rollnum!=7 && rollnum<10" style="position:absolute;left:86px;top:67px;"><font size ="20">{{rollnum}}</font></span>
 		<span v-if="rollnum!=7 && rollnum>=10" style="position:absolute;left:70px;top:68px;"><font size ="16">{{rollnum}}</font></span>
 		<map :name="this.hexagonid+'map'">
-			<area shape="circle" coords="100,100,80" :style="activestyle[0]" href="javascript:void(0);" @click="$emit('myClick',P)">
+			<area shape="circle" coords="100,100,80" :style="activestyle[0]" href="javascript:void(0);" @click="$emit('myClick',index)">
 		</map>
 	</div>
 </template>
