@@ -14,7 +14,7 @@
       <room ref="room" @gameDataHandle="gameDataHandle" :map="gamemap"/>
       <div v-if="gamemap!=null && mydata!=null">
         <privateboard @myClick="changeRes" @discard="discardRes" :robflag="robflag" :resources="mydata['resources']" style="position:absolute;left:0px;top:700px"/>
-        <button  @click="getCard()" style="resize:none;font-size:16px;">我要抽卡！</button>
+        <button  @click="getCard()" style="resize:none;font-size:16px;">我要抽卡</button>
         <button @click="endturn()" style="resize:none;font-size:16px;">结束建设</button>
         <button @click="test()">测试</button>
       </div>
@@ -131,7 +131,7 @@ export default {
           }
         }else if(this.gamemap['status']['process']==4)//处于建设状态
         {
-          if(this.gamemap['node'][index]['belongto']==this.$refs.room.myseat && this.gamemap['node']['building']=='home')
+          if(this.gamemap['node'][index]['belongto']==this.$refs.room.myseat && this.gamemap['node'][index]['building']=='home')
           {//判断为建城            
             if(this.mydata['resources']['wheat']>=2
             && this.mydata['resources']['stone']>=3)
@@ -252,7 +252,16 @@ export default {
     },
     getCard()
     {
-
+      if(this.mydata['resources']['grass']>=1
+      && this.mydata['resources']['wheat']>=1
+      && this.mydata['resources']['stone']>=1)
+      {
+        var send={};
+        send['head']='getcard';
+        this.$refs.room.webSocket.send(JSON.stringify(send));
+      }else{
+        alert('你没钱抽抽乐啦！需要：1羊毛1稻草1石头');
+      }
     },
     endturn(){
       var send={};
