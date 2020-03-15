@@ -16,6 +16,7 @@
         <privateboard @myClick="resHandle" @useCard="useCard" :myturn="myturn" :extra="gamemap['status']['extra']" :resources="mydata['resources']" style="position:absolute;left:0px;top:700px"/>
         <button  @click="getCard()" style="resize:none;font-size:16px;">我要抽卡</button>
         <button @click="endturn()" style="resize:none;font-size:16px;">结束建设</button>
+        <button @click="sendwinchk()" style="resize:none;font-size:16px;">我觉得我赢了</button>
         <button @click="test()">测试</button>
       </div>
     </div>
@@ -319,6 +320,17 @@ export default {
     test(){
       console.log(this.gamemap);
       console.log(this.mydata);
+    },
+    sendwinchk(){
+      if(this.myturn
+      && this.gamemap['status']['process']==4)
+      {
+        var send={};
+        send['head']='chkwin';
+        this.$refs.room.webSocket.send(JSON.stringify(send));
+      }else{
+        alert('现在你还不能宣告胜利，可能原因是不是你的回合或你还没扔骰子');
+      }
     }
   },
 }
