@@ -180,7 +180,8 @@ export default {
       var ret={};
       if(this.myturn)//确认是自己的回合
       {
-        if(this.gamemap['status']['process']==2 && this.gamemap['road'][index]['belongto']==-1)//处于初始放路状态
+        if(this.gamemap['status']['process']==2
+        && this.gamemap['road'][index]['belongto']==-1)//处于初始放路状态
         {
           if(confirm('就决定是这里是你的附带道路吗？')==true)
           {
@@ -188,7 +189,18 @@ export default {
             ret['index']=index;
             this.$refs.room.webSocket.send(JSON.stringify(ret));
           }
-        }else if(this.gamemap['status']['process']==4 && this.gamemap['road'][index]['belongto']==-1)//处于建设状态
+        }else if(this.gamemap['status']['process']==4
+        && this.myturn
+        && this.gamemap['status']['extra']==8
+        && this.gamemap['road'][index]['belongto']==-1){//道路建设功能
+          if(confirm('就决定这里修一条免费路吗？'))
+          {
+            ret['head']='cardevent';
+            ret['index']=index;
+            this.$refs.room.webSocket.send(JSON.stringify(ret));
+          }
+        }else if(this.gamemap['status']['process']==4
+        && this.gamemap['road'][index]['belongto']==-1)//处于建设状态
         {
             if(this.mydata['resources']['forest']>=1
             && this.mydata['resources']['iron']>=1)
@@ -293,11 +305,15 @@ export default {
       }
     },
     endturn(){
-      if(this.myturn)
+      if(this.myturn
+      && this.gamemap['status']['process']==4
+      && this.gamemap['status']['extra']==0)
       {
         var send={};
         send['head']='endturn';
         this.$refs.room.webSocket.send(JSON.stringify(send));
+      }else{
+        alert('当前无法结束建设阶段！请确认你的发展卡是否执行完毕或当前是否是建设阶段');
       }
     },
     test(){
