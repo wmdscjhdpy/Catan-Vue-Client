@@ -13,7 +13,7 @@
     <div style="position:absolute;left:1300px;top:10px">
       <room ref="room" @gameDataHandle="gameDataHandle" :map="gamemap"/>
       <div v-if="gamemap!=null && mydata!=null">
-        <privateboard @myClick="changeRes" @discard="discardRes" :boardflag="boardflag" :resources="mydata['resources']" style="position:absolute;left:0px;top:700px"/>
+        <privateboard @myClick="resHandle" @useCard="useCard" :myturn="myturn" :extra="gamemap['status']['extra']" :resources="mydata['resources']" style="position:absolute;left:0px;top:700px"/>
         <button  @click="getCard()" style="resize:none;font-size:16px;">我要抽卡</button>
         <button @click="endturn()" style="resize:none;font-size:16px;">结束建设</button>
         <button @click="test()">测试</button>
@@ -56,11 +56,6 @@ export default {
       if(this.$refs.room.myseat==this.gamemap['status']['turn'])return 1;
       else return 0;
     },
-    boardflag:function(){//功能版作用标志，0交换资源用，1强盗交资源用，2发展卡选用
-      if(this.gamemap['player'][this.$refs.room.myseat]['resources']>=7
-      && this.gamemap['status']['extra']==1)return 1;
-      else return false;
-    }
   },
   mounted(){
 
@@ -129,6 +124,22 @@ export default {
             ret['index']=index;
             this.$refs.room.webSocket.send(JSON.stringify(ret));
           }
+        }else if(this.gamemap['status']['extra']==3 && this.myturn)//extra事件在判定时要在最前面
+        {//处于强盗指定抽牌状态
+            if(this.gamemap['node'][index]['belongto']!=this.$refs.room.myseat)
+            {
+              if(this.gamemap['node'][index]['belongto']==-1
+              && !confirm('你选的位置属于无人区，你确定要放弃抽取其他玩家一张牌吗？'))
+              {
+                return;
+              }
+              var send={};
+              send['head']='robacard';
+              send['index']=this.gamemap['node'][index]['belongto'];
+              this.$refs.room.webSocket.send(JSON.stringify(send));
+            }else{
+              alert('不能选择抽自己的牌！');
+            }
         }else if(this.gamemap['status']['process']==4)//处于建设状态
         {
           if(this.gamemap['node'][index]['belongto']==this.$refs.room.myseat && this.gamemap['node'][index]['building']=='home')
@@ -161,22 +172,6 @@ export default {
             }else{
               alert('资源不足！请确认您的建村资源：1木头1铁1羊毛1稻草');
             }
-          }
-        }else if(this.gamemap['status']['extra']==3)//处于强盗指定抽牌状态
-        {
-          if(this.gamemap['node'][index]['belongto']!=this.$refs.room.myseat)
-          {
-            if(this.gamemap['node'][index]['belongto']==-1
-            && !confirm('你选的位置属于无人区，你确定要放弃抽取其他玩家一张牌吗？'))
-            {
-              return;
-            }
-            var send={};
-            send['head']='robacard';
-            send['index']=this.gamemap['node'][index]['belongto'];
-            this.$refs.room.webSocket.send(JSON.stringify(send));
-          }else{
-            alert('不能选择抽自己的牌！');
           }
         }
       }
@@ -220,53 +215,90 @@ export default {
         alert('现在还不是你丢骰子的时候！');
       }
     },
-    changeRes(input,output){
+    resHandle(data){
       var send={};
-      var index=gamecalc.G.reslist.indexOf(input);
-      if(this.myturn && this.gamemap['status']['process']==4)
+      switch(this.gamemap['status']['extra'])
       {
-        if(this.mydata['resources'][input]<4)
-        {
-          alert("你的"+gamecalc.G.reslistCN[index]+"不足以进行这次交换！");
-          return;
-        }
-        send['head']='change';
-        send['input']=input;
-        send['output']=output;
-        this.$refs.room.webSocket.send(JSON.stringify(send));
-      }else{
-        alert('现在还不是你的建设阶段，无法进行交换！');
+        case 0://交换资源用
+          var index=gamecalc.G.reslist.indexOf(data.input);
+          if(this.myturn && this.gamemap['status']['process']==4)
+          {
+            if(this.mydata['resources'][data.input]<4)
+            {
+              alert("你的"+gamecalc.G.reslistCN[index]+"不足以进行这次交换！");
+              return;
+            }
+            send['head']='change';
+            send['input']=data.input;
+            send['output']=data.output;
+            this.$refs.room.webSocket.send(JSON.stringify(send));
+          }else{
+            alert('现在还不是你的建设阶段，无法进行交换！');
+          }
+        break;
+        case 1://强盗扔牌
+          send['head']='discard';
+          for(var i=0;i<5;i++)
+          {
+            send[i]=data[i];
+          }
+          this.$refs.room.webSocket.send(JSON.stringify(send));
+          //为了不重复上缴，去除boardflag标志
+          this.gamemap['status']['extra']=0;
+        break;
+        case 6://丰收之年
+          send['head']='cardevent';
+          for(i=0;i<5;i++)
+          {
+            send[i]=data[i];
+          }
+          this.$refs.room.webSocket.send(JSON.stringify(send));
+        break;
+        case 7://垄断
+          send['head']='cardevent';
+          send['index']=data;
+          this.$refs.room.webSocket.send(JSON.stringify(send));
+        break;
+
       }
-    },
-    discardRes(roblist){
-      console.log(roblist);
-      var send={};
-      send['head']='discard';
-      for(var i=0;i<5;i++)
-      {
-        send[i]=roblist[i];
-      }
-      this.$refs.room.webSocket.send(JSON.stringify(send));
-      //为了不重复上缴，去除boardflag标志
-      this.gamemap['status']['extra']=0;
+      
     },
     getCard()
     {
       if(this.mydata['resources']['grass']>=1
       && this.mydata['resources']['wheat']>=1
-      && this.mydata['resources']['stone']>=1)
+      && this.mydata['resources']['stone']>=1
+      && this.myturn
+      && this.gamemap['status']['process']==4)
       {
         var send={};
         send['head']='getcard';
         this.$refs.room.webSocket.send(JSON.stringify(send));
       }else{
-        alert('你没钱抽抽乐啦！需要：1羊毛1稻草1石头');
+        alert('现在不能抽抽乐啦！可能是资源不够或不在建设阶段。需要：1羊毛1稻草1石头');
+      }
+    },
+    useCard(cardindex)
+    {
+      if(this.mydata['resources'][gamecalc.G.reslist[cardindex]]>=1
+      && this.myturn
+      && this.gamemap['status']['process']==4)
+      {
+        var send={};
+        send['head']='usecard';
+        send['index']=cardindex;
+        this.$refs.room.webSocket.send(JSON.stringify(send));
+      }else{
+        alert("你暂时没有拥有这张卡片或不在你的回合，请稍后再使用");
       }
     },
     endturn(){
-      var send={};
-      send['head']='endturn';
-      this.$refs.room.webSocket.send(JSON.stringify(send));
+      if(this.myturn)
+      {
+        var send={};
+        send['head']='endturn';
+        this.$refs.room.webSocket.send(JSON.stringify(send));
+      }
     },
     test(){
       console.log(this.gamemap);
