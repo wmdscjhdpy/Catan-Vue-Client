@@ -2,8 +2,9 @@
     <div :style="selfstyle">
     <span v-if="nickname">玩家:{{nickname}}</span>
     <span v-if="!nickname">这是一个空位</span>
-    <span v-if="readystate && nickname">已准备！</span>
-    <span v-if="!readystate && nickname">未准备</span>
+    <span v-if="readystate && nickname && !priviliege">已准备！</span>
+    <span v-if="!readystate && nickname && !priviliege">未准备</span>
+    <span v-if="nickname && priviliege" style="color:red;">房主</span>
     <!--游戏开始时计分板加入游戏玩家参数-->
     <div v-if="map!=null && map.player[index]['status']!=null">
         <span>{{map.player[index]['resources']}}张牌 {{map.player[index]['card']}}张发展卡 出了{{map.player[index]['soldier']}}次兵</span>
@@ -22,6 +23,7 @@ export default {
         return {
             nickname:undefined,
             readystate:0,
+            priviliege:0,
             selfstyle:{
                 width:'400px',
                 height:'60px',

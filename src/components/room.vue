@@ -13,9 +13,9 @@
     <button v-if="!inroom" @click="doEnter()" style="resize:none;font-size:16px;">进入房间</button>
     <button v-if="inroom" @click="doLeave()" style="resize:none;font-size:16px;">离开房间</button>
     <br>
-    <button v-if="!myreadystate && !priviliege && inroom" @click="changeReadyState(1)" style="resize:none;font-size:16px;">准备！！</button>
-    <button v-if="myreadystate && !priviliege && inroom" @click="changeReadyState(0)" style="resize:none;font-size:16px;">取消准备</button>
-    <button v-if="priviliege && inroom" @click="startGame()" style="resize:none;font-size:16px;">开始游戏</button>
+    <button v-if="!myreadystate && !mypriviliege && inroom" @click="changeReadyState(1)" style="resize:none;font-size:16px;">准备！！</button>
+    <button v-if="myreadystate && !mypriviliege && inroom" @click="changeReadyState(0)" style="resize:none;font-size:16px;">取消准备</button>
+    <button v-if="mypriviliege && inroom" @click="startGame()" style="resize:none;font-size:16px;">开始游戏</button>
     <br>
 
     </div>
@@ -34,7 +34,7 @@ export default {
             online:0,//标记当前客户端在线状态
             inroom:0,//标记当前客户端在房间内还是房间外
             webSocket:null,
-            showmsg:"欢迎来到卡坦岛内测版0.1\n",//用于显示游戏界面文字提示
+            showmsg:"欢迎来到卡坦岛内测版0.2\n",//用于显示游戏界面文字提示
             roomnum:'001',
             myseat:-1,//座位号
             mynickname:'wmd',
@@ -45,11 +45,16 @@ export default {
     mounted(){
         this.connectServer();
     },
-    updated(){
+    computed: {
+        mypriviliege(){
+            if(this.priviliege==this.myseat)return true;
+            return false;
+        }
     },
     methods:{
         connectServer(){
-            this.webSocket = new WebSocket("wss://www.wmd-dj.top/wss");//wss://www.wmd-dj.top:2333
+            //this.webSocket = new WebSocket("wss://www.wmd-dj.top/wss");
+            this.webSocket = new WebSocket("ws://192.168.2.4:2333");
             this.webSocket.onopen = (event)=>{
                 this.showmsg+="【系统提示】已成功和服务器建立连接\n";
                 this.online=1;
@@ -103,7 +108,14 @@ export default {
             console.log(data);
             switch (data.head) {
                 case 'priviliege':
-                    this.priviliege=1;
+                    if(this.myseat==-1)
+                    {
+                        this.priviliege=0;
+                        this.$refs['sb0'].priviliege=true;
+                    }else{
+                        this.priviliege=this.myseat;
+                        this.$refs['sb'+this.myseat].priviliege=true;
+                    }
                 break;
                 case 'enter':
                     if(data.nickname==this.mynickname)
@@ -112,6 +124,18 @@ export default {
                         this.inroom=1;
                     }
                     this.$refs['sb'+data.index].nickname=data.nickname;
+                break;
+                case 'info':
+                    for(var i=0;i<4;i++)
+                    {
+                        if(data[i]!=undefined)
+                        {
+                            this.$refs['sb'+data.index].readystate=data.readystate;
+                            this.$refs['sb'+data.index].nickname=data.nickname;
+                        }
+                    }
+                    this.priviliege=data.priviliege;
+                    this.$refs['sb'+data.priviliege].priviliege=true;
                 break;
                 case 'ready':
                     this.$refs['sb'+data.index].readystate=data.flag;
@@ -122,13 +146,14 @@ export default {
                     this.$refs['sb'+data.index].readystate=0;
                 break;
                 case 'leavesuccess':
-                    for(var i=0;i<4;i++)
+                    for(i=0;i<4;i++)
                     {
                         this.$refs['sb'+i].nickname=null;
                         this.$refs['sb'+i].readystate=0;
                     }
                     this.inroom=0;
-                    this.priviliege=0;
+                    this.priviliege=-1;
+                    this.myseat=-1;
                     this.showmsg+="【系统提示】你回到了大厅\n";
                 break;
                 case 'error':
