@@ -1,7 +1,7 @@
 <template>
     <div :style="selfstyle">
-        <img :id="'node'+this.nodeid" :src="this.who[belongto][building]" :usemap="'#node-'+this.nodeid+'map'" width="40" height="40">
-        <map :name="'node-'+this.nodeid+'map'">
+        <img :id="'node'+index" :src="this.who[belongto][building]" :usemap="'#node'+index+'map'" width="40" height="40">
+        <map :name="'node'+index+'map'">
 			<area shape="circle" coords="20,20,20" href="javascript:void(0);" @click="$emit('myClick',index)">
 		</map>
     </div>
@@ -29,7 +29,6 @@
         props:['P1','P2','P3','index','belongto','building'],
         data(){
             return{
-                nodeid:0,
                 who:{
                     '-1':{
                         blank:nobodyimg
@@ -76,7 +75,6 @@
             this.P3.y=Number(this.P3.y);
             
 			this.calcXYPosition();
-            this.nodeid=gamecalc.calcNodeId(Array(this.P1,this.P2,this.P3));
 		},
         methods:{
             calcXYPosition(){

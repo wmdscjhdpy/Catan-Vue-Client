@@ -7,6 +7,8 @@
     <!--游戏开始时计分板加入游戏玩家参数-->
     <div v-if="map!=null && map.player[index]['status']!=null">
         <span>{{map.player[index]['resources']}}张牌 {{map.player[index]['card']}}张发展卡 出了{{map.player[index]['soldier']}}次兵</span>
+        <span v-if="map['status']['maxsoldiers']==index" style="color:red;">最大士兵</span>
+        <span v-if="map['status']['maxroads']==index" style="color:green;">最大道路</span>
     </div>
     </div>
 </template>

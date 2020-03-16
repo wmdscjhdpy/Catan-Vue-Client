@@ -1,5 +1,5 @@
 <template>
-    <div :class="'road'+this.roadid" :style="roadstyle" @click="$emit('myClick',index)">
+    <div :class="'road'+index" :style="roadstyle" @click="$emit('myClick',index)">
     </div>
 </template>
 
@@ -10,7 +10,7 @@ export default {
     props:['P1','P2','index','belongto'],
     data(){
         return{
-            roadid:0,
+
         }
     },
     beforeMount(){
@@ -20,7 +20,6 @@ export default {
         this.P1.y=Number(this.P1.y);
         this.P2.y=Number(this.P2.y);
         //初始化位置以及角度
-        this.roadid=this.calcRoadId(Array(this.P1,this.P2));
     },
     computed:{
         roadstyle:function(){
@@ -53,14 +52,6 @@ export default {
                 posY,
                 Deg:this.calcRotateDeg()*-60
             }
-        },
-        calcRoadId(P){//给每一个节点一个唯一编号
-            var X,Y,roadid;
-            X=(P[0].x+P[1].x)/2;
-            Y=(P[0].y+P[1].y)/2;
-            roadid='road-x'+String(X.toFixed(2))+'y'+String(Y.toFixed(2));
-            roadid=String(roadid).replace(/\./g,'d');
-            return roadid;
         },
         ///计算道路旋转角度
         calcRotateDeg(){

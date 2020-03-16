@@ -1,11 +1,11 @@
 <template>
 	<div :style="selfstyle">
-		<img :src="this.kindimg[this.kind]" :usemap="'#'+this.hexagonid+'map'">
+		<img :src="this.kindimg[this.kind]" :usemap="'#hexagon'+index+'map'">
 		<div v-if="rollnum!=7 && !robber" style="position:absolute;left:70px;top:70px;width:60px;height:60px;background:#ffffcc;border-radius:30px"/>
 		<div v-if="robber" style="position:absolute;left:70px;top:70px;width:60px;height:60px;background:black;border-radius:30px"/>
 		<span v-if="rollnum!=7 && rollnum<10" style="position:absolute;left:86px;top:67px;"><font size ="20">{{rollnum}}</font></span>
 		<span v-if="rollnum!=7 && rollnum>=10" style="position:absolute;left:70px;top:68px;"><font size ="16">{{rollnum}}</font></span>
-		<map :name="this.hexagonid+'map'">
+		<map :name="'hexagon'+index+'map'">
 			<area shape="circle" coords="100,100,80" :style="activestyle[0]" href="javascript:void(0);" @click="$emit('myClick',index)">
 		</map>
 	</div>
@@ -28,7 +28,6 @@
 		//active 是否给用户点击操作
 		data:function(){
 			return{
-				hexagonid:0,
 				kindimg:{							//地块图片集
 					stone:img_stone,
 					desert:img_desert,
@@ -56,7 +55,6 @@
 			this.P.x=Number(this.P.x);
 			this.P.y=Number(this.P.y);
 			this.ref=String(this.P);
-			this.hexagonid=gamecalc.calcHexagonId(this.P);
 			this.calcHexagonPosition();
 		},
 		methods:{
