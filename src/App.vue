@@ -219,7 +219,9 @@ export default {
       }
     },
     rollHandle(){
-      if(this.gamemap['status']['process']==3 && this.myturn)//是自己扔骰子的回合
+      if(this.gamemap['status']['process']==3 
+      && this.myturn
+      && this.gamemap['status']['extra']==0)//是自己扔骰子的回合
       {
         var send={};
         send['head']='roll';
