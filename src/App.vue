@@ -284,7 +284,8 @@ export default {
       && this.mydata['resources']['wheat']>=1
       && this.mydata['resources']['stone']>=1
       && this.myturn
-      && this.gamemap['status']['process']==4)
+      && this.gamemap['status']['process']==4
+      && this.gamemap['status']['extra']==0)
       {
         var send={};
         send['head']='getcard';
@@ -297,7 +298,8 @@ export default {
     {
       if(this.mydata['resources'][gamecalc.G.reslist[cardindex]]>=1
       && this.myturn
-      && this.gamemap['status']['process']==4)
+      && this.gamemap['status']['process']==4
+      && this.gamemap['status']['extra']==0)
       {
         var send={};
         send['head']='usecard';

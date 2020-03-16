@@ -49,7 +49,7 @@ export default {
     },
     methods:{
         connectServer(){
-            this.webSocket = new WebSocket("ws://192.168.2.4:2333");//wss://www.wmd-dj.top:2333
+            this.webSocket = new WebSocket("wss://www.wmd-dj.top/wss");//wss://www.wmd-dj.top:2333
             this.webSocket.onopen = (event)=>{
                 this.showmsg+="【系统提示】已成功和服务器建立连接\n";
                 this.online=1;
