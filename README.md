@@ -1,5 +1,5 @@
 # Catan-Vue-Client
-
+![卡坦岛网页版](md/screenshot.png)
 Mark,wait for writing.........
 
 ## Project setup
