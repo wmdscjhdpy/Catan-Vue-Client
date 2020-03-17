@@ -34,7 +34,7 @@ export default {
             online:0,//标记当前客户端在线状态
             inroom:0,//标记当前客户端在房间内还是房间外
             webSocket:null,
-            showmsg:"欢迎来到卡坦岛内测版0.4.1\n",//用于显示游戏界面文字提示
+            showmsg:"欢迎来到卡坦岛内测版0.4.2\n",//用于显示游戏界面文字提示
             roomnum:'001',
             myseat:-1,//座位号
             mynickname:'wmd',

@@ -116,7 +116,7 @@ export default {
     methods:{
         iconClick(index)
         {
-            if(this.extra==1 && this.ressum>=7)//上缴资源功能
+            if(this.extra==1 && this.ressum>7)//上缴资源功能
             {
                 this.sublist[index]+=1;
                 if(this.sublist[index]>this.mydata['resources'][this.list[index]])this.sublist[index]=this.mydata['resources'][this.list[index]];
