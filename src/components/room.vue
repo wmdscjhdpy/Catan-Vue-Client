@@ -13,9 +13,9 @@
     <button v-if="!inroom" @click="doEnter()" style="resize:none;font-size:16px;">进入房间</button>
     <button v-if="inroom" @click="doLeave()" style="resize:none;font-size:16px;">离开房间</button>
     <br>
-    <button v-if="!myreadystate && !mypriviliege && inroom" @click="changeReadyState(1)" style="resize:none;font-size:16px;">准备！！</button>
-    <button v-if="myreadystate && !mypriviliege && inroom" @click="changeReadyState(0)" style="resize:none;font-size:16px;">取消准备</button>
-    <button v-if="mypriviliege && inroom" @click="startGame()" style="resize:none;font-size:16px;">开始游戏</button>
+    <button v-if="!gamestate && !myreadystate && !mypriviliege && inroom" @click="changeReadyState(1)" style="resize:none;font-size:16px;">准备！！</button>
+    <button v-if="!gamestate && myreadystate && !mypriviliege && inroom" @click="changeReadyState(0)" style="resize:none;font-size:16px;">取消准备</button>
+    <button v-if="!gamestate && mypriviliege && inroom" @click="startGame()" style="resize:none;font-size:16px;">开始游戏</button>
     <br>
 
     </div>
@@ -34,12 +34,13 @@ export default {
             online:0,//标记当前客户端在线状态
             inroom:0,//标记当前客户端在房间内还是房间外
             webSocket:null,
-            showmsg:"欢迎来到卡坦岛内测版0.2\n",//用于显示游戏界面文字提示
+            showmsg:"欢迎来到卡坦岛内测版0.2.2\n",//用于显示游戏界面文字提示
             roomnum:'001',
             myseat:-1,//座位号
             mynickname:'wmd',
             myreadystate:0,
-            priviliege:0,            //是否是房主
+            priviliege:0,            //房主的索引号
+            gamestate:0,             //游戏状态，0代表没开始 1代表开始了
         }
     },
     mounted(){
@@ -75,11 +76,18 @@ export default {
             }
         },
         doEnter(){
-            var send={};
-            send['head']='enter';
-            send['room']=this.roomnum;
-            send['nickname']=this.mynickname;
-            this.webSocket.send(JSON.stringify(send));
+            this.mynickname.replace(/\s*/g,"");
+            if(this.mynickname.length<=20)
+            {
+                if(this.mynickname)
+                var send={};
+                send['head']='enter';
+                send['room']=this.roomnum;
+                send['nickname']=this.mynickname;
+                this.webSocket.send(JSON.stringify(send));
+            }else{
+                alert('你的名字有点太长了吧？');
+            }
         },
         doLeave(){
             var send={};
@@ -89,6 +97,7 @@ export default {
         startGame(){
             var send={};
             send['head']='gameon';
+            this.gamestate=1;//防止重复提交
             this.webSocket.send(JSON.stringify(send));
             //交由服务器验证
         },
@@ -130,8 +139,8 @@ export default {
                     {
                         if(data[i]!=undefined)
                         {
-                            this.$refs['sb'+data.index].readystate=data.readystate;
-                            this.$refs['sb'+data.index].nickname=data.nickname;
+                            this.$refs['sb'+i].readystate=data[i].readystate;
+                            this.$refs['sb'+i].nickname=data[i].nickname;
                         }
                     }
                     this.priviliege=data.priviliege;
