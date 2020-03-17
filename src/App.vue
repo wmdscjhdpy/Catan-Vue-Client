@@ -1,9 +1,20 @@
 <template>
   <div id="app">
     <div v-if="gamemap!=null">
+      <port :P="{x:-1,y:-3}" :kind="gamemap.node[24]['port']" :deg="60"/>
+      <port :P="{x:2,y:-3}" :kind="gamemap.node[28]['port']" :deg="120"/>
+      <port :P="{x:3,y:-1}" :kind="gamemap.node[30]['port']" :deg="180"/>
+      <port :P="{x:3,y:1}" :kind="gamemap.node[33]['port']" :deg="180"/>
+      <port :P="{x:2,y:3}" :kind="gamemap.node[37]['port']" :deg="240"/>
+      <port :P="{x:-1,y:3}" :kind="gamemap.node[40]['port']" :deg="300"/>
+      <port :P="{x:-2,y:2}" :kind="gamemap.node[44]['port']" :deg="300"/>
+      <port :P="{x:-3,y:0}" :kind="gamemap.node[47]['port']" :deg="0"/>
+      <port :P="{x:-2,y:-2}" :kind="gamemap.node[50]['port']" :deg="60"/>
       <hexagon @myClick="hexagonHandle" v-for="(hexa,index) in gamemap.hexagon" :key="hexa.label" :P="hexa.Pos" :rollnum="hexa.number" :kind="hexa.kind" :index="index" :robber="hexa.robber"/>
       <node @myClick="nodeHandle"  v-for="(nod,index) in gamemap.node" :key="nod.label" :P1="nod.Pos[0]" :P2="nod.Pos[1]" :P3="nod.Pos[2]" :belongto="nod.belongto" :building="nod.building" :index="index"/>
       <road @myClick="roadHandle"  v-for="(roa,index) in gamemap.road" :key="roa.label" :P1="roa.Pos[0]" :P2="roa.Pos[1]" :belongto="roa.belongto" :index="index"/>
+
+
       <roll @myClick="rollHandle" :num="roll" style="position:absolute;left:1000px;top:50px"/>
       <span v-if="myturn" style="position:absolute;left:1050px;top:650px;width:200px;font-size:30px">轮到你了！</span>
     </div>
@@ -13,7 +24,7 @@
     <div style="position:absolute;left:1300px;top:10px">
       <room ref="room" @gameDataHandle="gameDataHandle" :map="gamemap"/>
       <div v-if="gamemap!=null && mydata!=null">
-        <privateboard @myClick="resHandle" @useCard="useCard" :myturn="myturn" :extra="gamemap['status']['extra']" :resources="mydata['resources']" style="position:absolute;left:0px;top:700px"/>
+        <privateboard @myClick="resHandle" @useCard="useCard" :myturn="myturn" :extra="gamemap['status']['extra']" :mydata="mydata" style="position:absolute;left:0px;top:700px"/>
         <button  @click="getCard()" style="resize:none;font-size:16px;">我要抽卡</button>
         <button @click="endturn()" style="resize:none;font-size:16px;">结束建设</button>
         <button @click="sendwinchk()" style="resize:none;font-size:16px;">我觉得我赢了</button>
@@ -32,6 +43,7 @@ import road from './components/road.vue'
 import gamecalc from './components/gamecalc.js'
 import room from './components/room.vue'
 import roll from './components/roll.vue'
+import port from './components/port.vue'
 import privateboard from './components/privateboard'
 
 export default {
@@ -42,7 +54,8 @@ export default {
     road,
     room,
     roll,
-    privateboard
+    privateboard,
+    port
   },
   data:function(){
     return{
@@ -244,6 +257,7 @@ export default {
               return;
             }
             send['head']='change';
+            send['lost']=data.lost;
             send['input']=data.input;
             send['output']=data.output;
             this.$refs.room.webSocket.send(JSON.stringify(send));

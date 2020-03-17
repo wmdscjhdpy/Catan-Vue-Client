@@ -4,16 +4,19 @@
             <img v-if="tobechange==index-1" :src="change" width="35" height="35" style="position:absolute">
             <img :src="ico[index-1]" width="80" height="64" @click="iconClick(index-1)" @contextmenu.prevent="iconRightClick(index-1)"/>
             <br>
-            <span class="shownum">{{resources[list[index-1]]}}</span><span v-if="extra==1 && ressum>=7" class="shownum" style="color:red">- {{sublist[index-1]}}</span><span v-if="extra==6 && myturn" class="shownum" style="color:green">+ {{sublist[index-1]}}</span>
+            <span class="shownum">{{mydata['resources'][list[index-1]]}}</span>
+            <span v-if="(extra==1 && ressum>=7)" class="shownum" style="color:red">- {{sublist[index-1]}}</span>
+            <span v-if="(extra===0 && tobechange===index-1)" class="shownum" style="color:red">- {{changelost}}</span>
+            <span v-if="(extra==6 && myturn)" class="shownum" style="color:green">+ {{sublist[index-1]}}</span>
         </div>
         <button v-if="extra==1 && ressum>=7" @click="submitRes()" style="resize:none;font-size:16px;position:absolute;left:400px;top:10px;">上缴（{{subsum}}/{{Math.floor(ressum/2)}}）</button>
         <button v-if="extra==6 && myturn" @click="submitRes()" style="resize:none;font-size:16px;position:absolute;left:400px;top:10px;">获得（{{subsum}}/2）</button>
         <div style="position:absolute;left:0px;top:100px;width:500px;">
-            <button @click="$emit('useCard',8)" class="normalbtn">道路建设({{resources['roadbuilding']}})</button>
-            <button @click="$emit('useCard',6)" class="normalbtn">丰收之年({{resources['harvest']}})</button>
-            <button @click="$emit('useCard',7)" class="normalbtn">垄断({{resources['monopoly']}})</button>
-            <button @click="$emit('useCard',5)" class="normalbtn">士兵({{resources['solders']}})</button>
-            <button  class="normalbtn">建筑物({{resources['winpoint']}})</button>
+            <button @click="$emit('useCard',8)" class="normalbtn">道路建设({{mydata['resources']['roadbuilding']}})</button>
+            <button @click="$emit('useCard',6)" class="normalbtn">丰收之年({{mydata['resources']['harvest']}})</button>
+            <button @click="$emit('useCard',7)" class="normalbtn">垄断({{mydata['resources']['monopoly']}})</button>
+            <button @click="$emit('useCard',5)" class="normalbtn">士兵({{mydata['resources']['solders']}})</button>
+            <button  class="normalbtn">建筑物({{mydata['resources']['winpoint']}})</button>
         </div>
     </div>
 
@@ -26,19 +29,18 @@ import stoneico from '../assets/icon/stone.png'
 import grassico from '../assets/icon/grass.png'
 import changeico from '../assets/icon/change.png'
 export default {
-    props:['resources','extra','myturn'],
+    props:['mydata','extra','myturn'],
     data() {
         return {
             change:changeico,
             tobechange:-1,//准备作为交换的资源索引
             ico:Array(forestico,ironico,grassico,wheatico,stoneico),
-            //botlist:[0,0,0,0,0],
             sublist:{0:0,1:0,2:0,3:0,4:0},//作为参数选取时的存储器
             list:Array('forest','iron','grass','wheat','stone','solders','harvest','monopoly','roadbuilding','winpoint')
         }
     },
     computed:{
-        subsum(){
+        subsum(){//子列表的和
             var sum=0;
             for(var i=0;i<5;i++)
             {
@@ -46,13 +48,27 @@ export default {
             }
             return sum;
         },
-        ressum(){
+        ressum(){//资源数和
             var sum=0;
             for(var i=0;i<5;i++)
             {
-                sum+=this.resources[this.list[i]];
+                sum+=this.mydata['resources'][this.list[i]];
             }
             return sum;
+        },
+        changelost()//选中的交换资源需要的数量
+        {
+            if(this.tobechange===-1)return -1;
+            else{
+                if(this.mydata['port'].indexOf(this.tobechange)!==-1)//存在这个港口
+                {
+                    return 2;
+                }else if(this.mydata['port'].indexOf(5)!==-1){
+                    return 3;
+                }else{
+                    return 4;
+                }
+            }
         }
     },
     methods:{
@@ -61,7 +77,8 @@ export default {
             if(this.extra==1 && this.ressum>=7)//上缴资源功能
             {
                 this.sublist[index]+=1;
-                if(this.sublist[index]>this.resources[this.list[index]])this.sublist[index]=this.resources[this.list[index]];
+                if(this.sublist[index]>this.mydata['resources'][this.list[index]])this.sublist[index]=this.mydata['resources'][this.list[index]];
+                if(this.subsum>Math.floor(this.ressum/2))this.sublist[index]-=1;
             }else if(this.extra==0){//交换资源或选取资源功能
                 if(this.tobechange==-1)//还未选中任何被交换资源
                 {
@@ -70,9 +87,9 @@ export default {
                 {
                     this.tobechange=-1;
                 }else{//选中第二个资源，提交交换请求
-                    if(this.resources[this.list[this.tobechange]]>=4)
+                    if(this.mydata['resources'][this.list[this.tobechange]]>=4)
                     {
-                        this.$emit('myClick',{input:this.tobechange,output:index});
+                        this.$emit('myClick',{lost:this.changelost,input:this.tobechange,output:index});
                     }else{
                         alert('你用于交换的资源不足！');
                     }
