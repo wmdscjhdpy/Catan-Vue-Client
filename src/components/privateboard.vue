@@ -6,17 +6,31 @@
             <br>
             <span class="shownum">{{mydata['resources'][list[index-1]]}}</span>
             <span v-if="(extra==1 && ressum>=7)" class="shownum" style="color:red">- {{sublist[index-1]}}</span>
-            <span v-if="(extra===0 && tobechange===index-1)" class="shownum" style="color:red">- {{changelost}}</span>
             <span v-if="(extra==6 && myturn)" class="shownum" style="color:green">+ {{sublist[index-1]}}</span>
+
+            <span v-if="(extra===0 && tobechange===index-1)" class="shownum" style="color:red">- {{changelost}}</span>
+
+            <span v-if="(trade || tradeswitch) && sublist[index-1]>0" class="shownum" style="color:green">+ {{sublist[index-1]}}</span>
+            <span v-if="(trade || tradeswitch) && sublist[index-1]<0" class="shownum" style="color:red">{{sublist[index-1]}}</span>
         </div>
         <button v-if="extra==1 && ressum>=7" @click="submitRes()" style="resize:none;font-size:16px;position:absolute;left:400px;top:10px;">上缴（{{subsum}}/{{Math.floor(ressum/2)}}）</button>
         <button v-if="extra==6 && myturn" @click="submitRes()" style="resize:none;font-size:16px;position:absolute;left:400px;top:10px;">获得（{{subsum}}/2）</button>
         <div style="position:absolute;left:0px;top:100px;width:500px;">
+            <div v-if="!tradeswitch" style="float:left;">
             <button @click="$emit('useCard',8)" class="normalbtn">道路建设({{mydata['resources']['roadbuilding']}})</button>
             <button @click="$emit('useCard',6)" class="normalbtn">丰收之年({{mydata['resources']['harvest']}})</button>
             <button @click="$emit('useCard',7)" class="normalbtn">垄断({{mydata['resources']['monopoly']}})</button>
             <button @click="$emit('useCard',5)" class="normalbtn">士兵({{mydata['resources']['solders']}})</button>
-            <button  class="normalbtn">建筑物({{mydata['resources']['winpoint']}})</button>
+            <button  class="normalbtn">加分卡({{mydata['resources']['winpoint']}})</button>
+            </div>
+            <button v-if="!tradeswitch && extra===0 && myturn" @click="tradeswitch=true" class="normalbtn">打开贸易</button>
+            <button v-if="tradeswitch" @click="tradeswitch=false" class="normalbtn">中止贸易</button>
+            <div v-if="trade || tradeswitch" style="float:left;">
+                <button v-if="myturn" @click="$emit('tradeCtl',{head:'open',data:sublist})" class="normalbtn">提交贸易请求</button>
+                <button v-if="!myturn" @click="$emit('tradeCtl',{head:'accepted'})" class="normalbtn">接受交易</button>
+                <button v-if="!myturn" @click="$emit('tradeCtl',{head:'rejected'})" class="normalbtn">拒绝交易</button>
+            </div>
+
         </div>
     </div>
 
@@ -28,15 +42,43 @@ import ironico from '../assets/icon/iron.png'
 import stoneico from '../assets/icon/stone.png'
 import grassico from '../assets/icon/grass.png'
 import changeico from '../assets/icon/change.png'
+import gamecalc from './gamecalc'
 export default {
-    props:['mydata','extra','myturn'],
+    props:['mydata','extra','myturn','trade'],
     data() {
         return {
             change:changeico,
+            tradeswitch:false,//主动交易开关
             tobechange:-1,//准备作为交换的资源索引
             ico:Array(forestico,ironico,grassico,wheatico,stoneico),
             sublist:{0:0,1:0,2:0,3:0,4:0},//作为参数选取时的存储器
             list:Array('forest','iron','grass','wheat','stone','solders','harvest','monopoly','roadbuilding','winpoint')
+        }
+    },
+    watch:{
+        trade(newvalue,oldvalue)
+        {
+            if(newvalue==null)//由服务器关闭交易
+            {
+                this.tradeswitch=false;
+            }else{
+                if(this.tradeswitch)//如果是交易主的话就没必要反转值了
+                return;
+                for(var i=0;i<5;i++)
+                {
+                    this.sublist[i]=-newvalue['tradelist'][i];
+                }
+            }
+        },
+        tradeswitch(newvalue,oldvalue)
+        {
+            if(newvalue==false)
+            {
+                for(var i=0;i<5;i++)
+                {
+                    this.sublist[i]=0;
+                }
+            }
         }
     },
     computed:{
@@ -79,6 +121,8 @@ export default {
                 this.sublist[index]+=1;
                 if(this.sublist[index]>this.mydata['resources'][this.list[index]])this.sublist[index]=this.mydata['resources'][this.list[index]];
                 if(this.subsum>Math.floor(this.ressum/2))this.sublist[index]-=1;
+            }else if(this.tradeswitch){//贸易功能
+                this.sublist[index]+=1;
             }else if(this.extra==0){//交换资源或选取资源功能
                 if(this.tobechange==-1)//还未选中任何被交换资源
                 {
@@ -87,12 +131,7 @@ export default {
                 {
                     this.tobechange=-1;
                 }else{//选中第二个资源，提交交换请求
-                    if(this.mydata['resources'][this.list[this.tobechange]]>=4)
-                    {
-                        this.$emit('myClick',{lost:this.changelost,input:this.tobechange,output:index});
-                    }else{
-                        alert('你用于交换的资源不足！');
-                    }
+                    this.$emit('myClick',{lost:this.changelost,input:this.tobechange,output:index});
                 }
             }else if(this.extra==6 && this.myturn)//丰收之年功能
             {
@@ -104,10 +143,18 @@ export default {
         },
         iconRightClick(index)
         {
-            if((this.extra==1 && this.ressum>=7) || (this.extra==6 && this.myturn))//上缴资源功能和丰收之年的处理
+            if((this.extra==1 && this.ressum>=7)
+            || (this.extra==6 && this.myturn))//上缴资源功能,丰收之年,贸易的处理
             {
                 this.sublist[index]-=1;
                 if(this.sublist[index]<0)this.sublist[index]=0;
+            }else if(this.tradeswitch)
+            {
+                this.sublist[index]-=1;
+                if(Math.abs(this.sublist[index])>this.mydata['resources'][gamecalc.G.reslist[index]])
+                {
+                    this.sublist[index]=-this.mydata['resources'][gamecalc.G.reslist[index]];
+                }
             }
         },
         submitRes()

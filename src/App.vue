@@ -24,7 +24,7 @@
     <div style="position:absolute;left:1300px;top:10px">
       <room ref="room" @gameDataHandle="gameDataHandle" :map="gamemap"/>
       <div v-if="gamemap!=null && mydata!=null">
-        <privateboard @myClick="resHandle" @useCard="useCard" :myturn="myturn" :extra="gamemap['status']['extra']" :mydata="mydata" style="position:absolute;left:0px;top:700px"/>
+        <privateboard @myClick="resHandle" @tradeCtl="tradeCtl" @useCard="useCard" :myturn="myturn" :extra="gamemap['status']['extra']" :mydata="mydata" :trade="gamemap['trade']" style="position:absolute;left:0px;top:700px"/>
         <button  @click="getCard()" style="resize:none;font-size:16px;">我要抽卡</button>
         <button @click="endturn()" style="resize:none;font-size:16px;">结束建设</button>
         <button @click="sendwinchk()" style="resize:none;font-size:16px;">我觉得我赢了</button>
@@ -349,6 +349,55 @@ export default {
       }else{
         alert('现在你还不能宣告胜利，可能原因是不是你的回合或你还没扔骰子');
       }
+    },
+    tradeCtl(data)
+    {
+      var send={};
+      if(this.gamemap['status']['process']!==4)
+      {
+        alert('现在不是搞py交易的时候！');
+        return;
+      }
+      switch(data['head'])
+      {
+        case 'open':
+          send['tradelist']=data['data'];
+          //检查交易合法性：至少一个出一个入
+          var posflag=0;
+          var negflag=0;
+          for(var i=0;i<5;i++)
+          {
+            if(data['data'][i]>0)posflag=1;
+            if(data['data'][i]<0)negflag=1;
+          }
+          if(!(posflag && negflag))
+          {
+            alert('交易至少需要出手一个资源，入手一个资源！');
+            return;
+          }
+        break;
+        case 'accepted':
+          var flag=1;//检查是否有足够的资格进行交换
+          for(i=0;i<5;i++)
+          {
+            if(this.gamemap['trade']['tradelist'][i]>this.mydata['resources'][gamecalc.G.reslist[i]])
+            {
+              flag=0;
+            }
+          }
+          if(flag==0)
+          {
+            alert('你没有足够的资源来支撑这次交易！');
+            return;
+          }
+        break;
+        case 'rejected':
+          this.gamemap['trade']=null;
+        break;
+      }
+      send['head']='trade';
+      send['flag']=data['head'];
+      this.$refs.room.webSocket.send(JSON.stringify(send));
     }
   },
 }
