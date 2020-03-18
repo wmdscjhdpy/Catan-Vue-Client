@@ -251,9 +251,9 @@ export default {
           var index=gamecalc.G.reslist.indexOf(data.input);
           if(this.myturn && this.gamemap['status']['process']==4)
           {
-            if(this.mydata['resources'][data.input]<4)
+            if(this.mydata['resources'][gamecalc.G.reslist[data.input]]<data.lost)
             {
-              alert("你的"+gamecalc.G.reslistCN[index]+"不足以进行这次交换！");
+              alert("你的"+gamecalc.G.reslistCN[data.input]+"不足以进行这次交换！");
               return;
             }
             send['head']='change';

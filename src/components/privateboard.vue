@@ -16,13 +16,14 @@
         <button v-if="extra==1 && ressum>=7" @click="submitRes()" style="resize:none;font-size:16px;position:absolute;left:400px;top:10px;">上缴（{{subsum}}/{{Math.floor(ressum/2)}}）</button>
         <button v-if="extra==6 && myturn" @click="submitRes()" style="resize:none;font-size:16px;position:absolute;left:400px;top:10px;">获得（{{subsum}}/2）</button>
         <div style="position:absolute;left:0px;top:100px;width:500px;">
-            <div v-if="!tradeswitch" style="float:left;">
+            <div v-if="!tradeswitch">
             <button @click="$emit('useCard',8)" class="normalbtn">道路建设({{mydata['resources']['roadbuilding']}})</button>
             <button @click="$emit('useCard',6)" class="normalbtn">丰收之年({{mydata['resources']['harvest']}})</button>
             <button @click="$emit('useCard',7)" class="normalbtn">垄断({{mydata['resources']['monopoly']}})</button>
             <button @click="$emit('useCard',5)" class="normalbtn">士兵({{mydata['resources']['solders']}})</button>
             <button  class="normalbtn">加分卡({{mydata['resources']['winpoint']}})</button>
             </div>
+            <br>
             <button v-if="!tradeswitch && extra===0 && myturn" @click="tradeswitch=true" class="normalbtn">打开贸易</button>
             <button v-if="tradeswitch" @click="tradeswitch=false" class="normalbtn">中止贸易</button>
             <div v-if="trade || tradeswitch" style="float:left;">
@@ -72,12 +73,23 @@ export default {
         },
         tradeswitch(newvalue,oldvalue)
         {
-            if(newvalue==false)
+            if(newvalue==false)//主动关闭贸易
             {
-                for(var i=0;i<5;i++)
+                if(this.trade)//如果交易已经提交了，则发送清除指令
                 {
-                    this.sublist[i]=0;
+                    this.$emit('tradeCtl',{head:'close'});
                 }
+            }
+            for(var i=0;i<5;i++)
+            {
+                this.sublist[i]=0;
+            }
+        },
+        extra(newvalue,oldvalue)//每次extra值发生改变时清空sublist
+        {
+            for(var i=0;i<5;i++)
+            {
+                this.sublist[i]=0;
             }
         }
     },
@@ -121,7 +133,7 @@ export default {
                 this.sublist[index]+=1;
                 if(this.sublist[index]>this.mydata['resources'][this.list[index]])this.sublist[index]=this.mydata['resources'][this.list[index]];
                 if(this.subsum>Math.floor(this.ressum/2))this.sublist[index]-=1;
-            }else if(this.tradeswitch){//贸易功能
+            }else if(this.tradeswitch){//贸易功能 仅主动选择可以选
                 this.sublist[index]+=1;
             }else if(this.extra==0){//交换资源或选取资源功能
                 if(this.tobechange==-1)//还未选中任何被交换资源
@@ -132,6 +144,7 @@ export default {
                     this.tobechange=-1;
                 }else{//选中第二个资源，提交交换请求
                     this.$emit('myClick',{lost:this.changelost,input:this.tobechange,output:index});
+                    this.tobechange=-1;
                 }
             }else if(this.extra==6 && this.myturn)//丰收之年功能
             {

@@ -29,7 +29,7 @@ export default {
                 height:'60px',
                 border:'2px solid',
                 'border-color':'#ff00ff',
-                float:'left'
+                //float:'left'
             }
         }
     },

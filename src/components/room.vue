@@ -4,7 +4,7 @@
     <playerboard ref="sb1" index="1" :map="map"/>
     <playerboard ref="sb2" index="2" :map="map"/>
     <playerboard ref="sb3" index="3" :map="map"/>
-    <textarea id="messagewindow" rows="10" cols="50" readonly style="resize:none;font-size:16px;overflow:auto;" v-model="this.showmsg"/>
+    <textarea id="messagewindow" rows="10" cols="50" readonly  style="resize:none;font-size:16px;overflow:auto;height:350px;" v-model="this.showmsg"/>
     <br>
     <span>你的游戏名字:</span>
     <input type="text" v-model="mynickname" name="nickname" style="width:100px;resize:none;font-size:16px;">
@@ -34,7 +34,7 @@ export default {
             online:0,//标记当前客户端在线状态
             inroom:0,//标记当前客户端在房间内还是房间外
             webSocket:null,
-            showmsg:"欢迎来到卡坦岛内测版0.4.2\n",//用于显示游戏界面文字提示
+            showmsg:"欢迎来到卡坦岛内测版0.4.5\n",//用于显示游戏界面文字提示
             roomnum:'001',
             myseat:-1,//座位号
             mynickname:'wmd',
@@ -54,8 +54,8 @@ export default {
     },
     methods:{
         connectServer(){
-            //this.webSocket = new WebSocket("wss://www.wmd-dj.top/wss");
-            this.webSocket = new WebSocket("ws://192.168.2.4:2333");
+            this.webSocket = new WebSocket("wss://www.wmd-dj.top/wss");
+            //this.webSocket = new WebSocket("ws://192.168.2.4:2333");
             this.webSocket.onopen = (event)=>{
                 this.showmsg+="【系统提示】已成功和服务器建立连接\n";
                 this.online=1;
@@ -77,7 +77,7 @@ export default {
         },
         doEnter(){
             this.mynickname.replace(/\s*/g,"");
-            if(this.mynickname.length<=20)
+            if(this.mynickname.length<=10)
             {
                 if(this.mynickname)
                 var send={};
