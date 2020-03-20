@@ -34,7 +34,7 @@ export default {
             online:0,//标记当前客户端在线状态
             inroom:0,//标记当前客户端在房间内还是房间外
             webSocket:null,
-            showmsg:"欢迎来到卡坦岛内测版0.4.5\n",//用于显示游戏界面文字提示
+            showmsg:"欢迎来到卡坦岛内测版0.5.1\n",//用于显示游戏界面文字提示
             roomnum:'001',
             myseat:-1,//座位号
             mynickname:'wmd',
@@ -54,8 +54,8 @@ export default {
     },
     methods:{
         connectServer(){
-            this.webSocket = new WebSocket("wss://www.wmd-dj.top/wss");
-            //this.webSocket = new WebSocket("ws://192.168.2.4:2333");
+            //this.webSocket = new WebSocket("wss://www.wmd-dj.top/wss");
+            this.webSocket = new WebSocket("ws://192.168.2.4:2333");
             this.webSocket.onopen = (event)=>{
                 this.showmsg+="【系统提示】已成功和服务器建立连接\n";
                 this.online=1;
@@ -153,6 +153,7 @@ export default {
                     //清空房间信息
                     this.$refs['sb'+data.index].nickname=null;
                     this.$refs['sb'+data.index].readystate=0;
+                    this.$refs['sb'+data.index].priviliege=0;
                 break;
                 case 'leavesuccess':
                     for(i=0;i<4;i++)
@@ -160,6 +161,7 @@ export default {
                         this.$refs['sb'+i].nickname=null;
                         this.$refs['sb'+i].readystate=0;
                         this.$refs['sb'+i].priviliege=0;
+                        this.myreadystate=0;
                     }
                     this.inroom=0;
                     this.priviliege=-1;

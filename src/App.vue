@@ -256,11 +256,14 @@ export default {
               alert("你的"+gamecalc.G.reslistCN[data.input]+"不足以进行这次交换！");
               return;
             }
-            send['head']='change';
-            send['lost']=data.lost;
-            send['input']=data.input;
-            send['output']=data.output;
-            this.$refs.room.webSocket.send(JSON.stringify(send));
+            if(confirm("你确定要使用"+data.lost+'个'+gamecalc.G.reslistCN[data.input]+"来交换"+gamecalc.G.reslistCN[data.output]+"吗？"))
+            {
+              send['head']='change';
+              send['lost']=data.lost;
+              send['input']=data.input;
+              send['output']=data.output;
+              this.$refs.room.webSocket.send(JSON.stringify(send));
+            }
           }else{
             alert('现在还不是你的建设阶段，无法进行交换！');
           }
